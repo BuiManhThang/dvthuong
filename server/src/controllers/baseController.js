@@ -62,14 +62,12 @@ class BaseController {
 
   create = async (req, res) => {
     try {
-      if (this.validators.length > 0) {
-        const errors = validationResult(req)
-        if (!errors.isEmpty()) {
-          return res.status(400).json({
-            success: false,
-            errors,
-          })
-        }
+      const errors = validationResult(req)
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          success: false,
+          errors,
+        })
       }
 
       const customErrors = await this.customValidate()
