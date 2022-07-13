@@ -4,10 +4,7 @@ const authValidation = (req, res, next) => {
   try {
     const token = req.cookies.token
     if (!token) {
-      return res.status(401).json({
-        success: false,
-        msg: 'Unauthorized',
-      })
+      return res.sendStatus(401)
     }
     const decodedData = jwt.verify(token, process.env.JWT_SECRET_KEY)
     req.body.userId = decodedData.userId

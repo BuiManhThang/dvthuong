@@ -6,12 +6,16 @@ const validators = [
   body('name').trim().isLength({ min: 1 }).withMessage('Bắt buộc nhập tên nhà sản xuất').escape(),
 ]
 
-const userRouter = Router()
+const manufacturerRouter = Router()
 
-userRouter.get('/:id', manufacturerController.get)
+manufacturerRouter.get('/:id', manufacturerController.get)
 
-userRouter.get('/', manufacturerController.getAll)
+manufacturerRouter.get('/', manufacturerController.getAll)
 
-userRouter.post('/', validators, manufacturerController.create)
+manufacturerRouter.post('/', validators, manufacturerController.create)
 
-export default userRouter
+manufacturerRouter.put('/:id', validators, manufacturerController.update)
+
+manufacturerRouter.delete('/:id', manufacturerController.delete)
+
+export default manufacturerRouter
