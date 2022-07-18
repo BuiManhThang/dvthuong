@@ -13,14 +13,16 @@ class ManufacturerController extends BaseController {
 
   customValidate = async (req) => {
     const { name } = req.body
-    const foundEntity = await this.model.findOne({ name })
-    if (foundEntity) {
-      return [
-        {
-          param: 'name',
-          msg: 'Tên nhà sản xuất đã tồn tại',
-        },
-      ]
+    if (req.method === 'POST') {
+      const foundEntity = await this.model.findOne({ name })
+      if (foundEntity) {
+        return [
+          {
+            param: 'name',
+            msg: 'Tên nhà sản xuất đã tồn tại',
+          },
+        ]
+      }
     }
     return []
   }
