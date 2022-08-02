@@ -8,8 +8,13 @@ const InputField = ({
   placeholder = '',
   icon = null,
   isAutoFocus = false,
+  error = '',
+  value = '',
+  type = 'text',
+  onInput = () => {},
 }) => {
   const [inputFieldClass, setInputFieldClass] = useState('')
+  const [inputFieldErrorClass, setInputFieldErrorClass] = useState('')
   const inputRef = useRef(null)
 
   useEffect(() => {
@@ -18,25 +23,37 @@ const InputField = ({
     }
   }, [])
 
+  useEffect(() => {
+    if (error) {
+      setInputFieldErrorClass('input-field--error')
+    } else {
+      setInputFieldErrorClass('')
+    }
+  }, [error])
+
   const handleInput = (e) => {
     if (e.target.value) {
       setInputFieldClass('input-field--active')
     } else {
       setInputFieldClass('')
     }
+    onInput(e)
   }
 
   return (
-    <div className={`${styles['input-field']} ${styles[inputFieldClass]}`}>
+    <div
+      className={`${styles['input-field']} ${styles[inputFieldErrorClass]} ${styles[inputFieldClass]}`}
+    >
       <div className={styles['input-field__container']}>
         <input
           ref={inputRef}
           className={styles['input-field__input']}
-          type="text"
+          type={type}
           id={id}
           name={name}
           placeholder={placeholder}
           onInput={handleInput}
+          value={value}
         />
         <label className={styles['input-field__label']} htmlFor={id}>
           {label}
@@ -47,6 +64,7 @@ const InputField = ({
           </label>
         )}
       </div>
+      {error && <div className={styles['input-field__error']}>{error}</div>}
     </div>
   )
 }

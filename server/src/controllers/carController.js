@@ -37,6 +37,30 @@ class CarController extends BaseController {
     }
   }
 
+  getCarsForHome = async (req, res) => {
+    try {
+      const manufacturers = await this.manufacturer.find()
+      const result = []
+
+      const manufacturersLength = manufacturers.length
+      for (let index = 0; index < manufacturersLength; index++) {
+        const mnu = manufacturers[index]
+        const item = {
+          _id: mnu._id,
+          name: mnu.name,
+          products: [],
+        }
+        const products = await this.model.find({ manufacturer: mnu._id })
+        item.products = [...products]
+        result.push(item)
+      }
+
+      return this.success(res, result)
+    } catch (error) {
+      this.serverError(res, error)
+    }
+  }
+
   customValidate = async (req) => {
     const { name, manufacturer } = req.body
     const errors = []

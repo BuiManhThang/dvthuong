@@ -8,27 +8,7 @@ const validators = [
     .isLength({ max: 256, min: 1 })
     .withMessage('Bắt buộc nhập tên sản phẩm, tối đa 256 ký tự')
     .escape(),
-  body('banner')
-    .trim()
-    .isLength({ min: 1 })
-    .withMessage('Bắt buộc nhập hình ảnh banner của sản phẩm')
-    .escape(),
-  body('slogan')
-    .trim()
-    .isLength({ min: 1 })
-    .withMessage('Bắt buộc nhập slogan của sản phẩm')
-    .escape(),
-  body('subSlogan')
-    .trim()
-    .isLength({ min: 1 })
-    .withMessage('Bắt buộc nhập slogan phụ của sản phẩm')
-    .escape(),
-  body('deposit')
-    .isLength({ min: 1 })
-    .withMessage('Bắt buộc nhập số tiền đặt cọc')
-    .isNumeric()
-    .withMessage('Số tiền phải là số')
-    .escape(),
+  body('image').trim().isLength({ min: 1 }).withMessage('Bắt buộc nhập hình ảnh của sản phẩm'),
   body('price')
     .isLength({ min: 1 })
     .withMessage('Bắt buộc nhập giá sản phẩm')
@@ -46,6 +26,8 @@ const validators = [
 const carRouter = Router()
 
 carRouter.get('/q', carController.getCarsByManufacturer)
+
+carRouter.get('/getCarsForHome', carController.getCarsForHome)
 
 carRouter.get('/:id', carController.get)
 

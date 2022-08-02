@@ -2,8 +2,12 @@ import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import Link from 'next/link'
+import { useSelector } from 'react-redux'
+import baseApi from '../api/BaseApi'
 
-export default function Home() {
+export default function Home({ productsForHome }) {
+  const account = useSelector((state) => state.account.accountInfo)
+  console.log(account)
   return (
     <div className={styles.container}>
       <Head>
@@ -22,6 +26,8 @@ export default function Home() {
         </p>
 
         <Link href="/sign-in">Sign In</Link>
+
+        {account && JSON.stringify(account)}
       </main>
 
       <footer className={styles.footer}>
@@ -38,4 +44,19 @@ export default function Home() {
       </footer>
     </div>
   )
+}
+
+export async function getServerSideProps(context) {
+  console.log(1)
+  const res = await baseApi.get('/cars/getCarsForHome')
+  let productsForHome = []
+  if (res.data.success) {
+    productsForHome = res.data.data
+  }
+
+  return {
+    props: {
+      productsForHome,
+    },
+  }
 }

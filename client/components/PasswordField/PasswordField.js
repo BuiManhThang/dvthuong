@@ -1,9 +1,20 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styles from './PasswordField.module.scss'
 
-const PasswordField = ({ id = '', name = '', label = '', placeholder = '' }) => {
+const PasswordField = ({
+  id = '',
+  name = '',
+  label = '',
+  placeholder = '',
+  isAutoFocus = false,
+  error = '',
+  value = '',
+  onInput = '',
+}) => {
   const [inputFieldClass, setInputFieldClass] = useState('')
   const [activePassword, setActivePassword] = useState(false)
+  const [inputFieldErrorClass, setInputFieldErrorClass] = useState('')
+  const inputRef = useRef(null)
 
   const handleInput = (e) => {
     if (e.target.value) {
@@ -11,22 +22,41 @@ const PasswordField = ({ id = '', name = '', label = '', placeholder = '' }) => 
     } else {
       setInputFieldClass('')
     }
+    onInput(e)
   }
+
+  useEffect(() => {
+    if (isAutoFocus) {
+      inputRef.current.focus()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (error) {
+      setInputFieldErrorClass('password-field--error')
+    } else {
+      setInputFieldErrorClass('')
+    }
+  }, [error])
 
   const handleClickIcon = () => {
     setActivePassword(!activePassword)
   }
 
   return (
-    <div className={`${styles['password-field']} ${styles[inputFieldClass]}`}>
+    <div
+      className={`${styles['password-field']} ${styles[inputFieldClass]} ${styles[inputFieldErrorClass]}`}
+    >
       <div className={styles['password-field__container']}>
         <input
+          ref={inputRef}
           className={styles['password-field__input']}
           type={activePassword ? 'text' : 'password'}
           id={id}
           name={name}
           placeholder={placeholder}
           onInput={handleInput}
+          value={value}
         />
         <label className={styles['password-field__label']} htmlFor={id}>
           {label}
@@ -43,6 +73,7 @@ const PasswordField = ({ id = '', name = '', label = '', placeholder = '' }) => 
           )}
         </div>
       </div>
+      {error && <div className={styles['password-field__error']}>{error}</div>}
     </div>
   )
 }

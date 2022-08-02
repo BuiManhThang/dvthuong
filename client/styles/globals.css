@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,500;0,700;1,300;1,500;1,700&display=swap');
 
 html,
@@ -15,4 +19,27 @@ a {
 
 * {
   box-sizing: border-box;
+}
+
+::-webkit-scrollbar-track {
+  width: 10px;
+  height: 10px;
+  background-color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  width: 10px;
+  height: 10px;
+  border-radius: 8px;
+  background-color: rgb(189, 183, 183);
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(160, 157, 157);
 }

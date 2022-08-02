@@ -59,12 +59,13 @@ class BaseController {
         entityData = {}
         const { paths } = this.model.schema
         for (const key in paths) {
+          const formattedKey = key.split('.')[0]
           if (
-            !this.expectPropertyName.includes(key) &&
+            !this.expectPropertyName.includes(formattedKey) &&
             entityData !== undefined &&
-            req.body[key] !== undefined
+            req.body[formattedKey] !== undefined
           ) {
-            entityData[key] = req.body[key]
+            entityData[formattedKey] = req.body[formattedKey]
           }
         }
       }

@@ -105,7 +105,7 @@ export const createUser = [
         expiresIn: '1d',
       })
       res.cookie('token', token, {
-        expire: new Date() + 86400000,
+        expires: new Date(Date.now() + 86400000),
         httpOnly: true,
         sameSite: 'None',
         secure: true,

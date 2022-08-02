@@ -2,6 +2,7 @@ import express, { json, urlencoded } from 'express'
 import dotenv from 'dotenv'
 import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
+import cors from 'cors'
 
 // Connect DB
 import connectDB from './database/connect.js'
@@ -24,6 +25,12 @@ app.use(morgan('dev'))
 app.use(urlencoded())
 app.use(json())
 app.use(cookieParser())
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  })
+)
 
 // Use Routers
 app.use('/api/v1/users', userRouter)
