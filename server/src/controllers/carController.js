@@ -84,6 +84,42 @@ class CarController extends BaseController {
 
     return errors
   }
+
+  getNewCode = async (_, res) => {
+    try {
+      const cars = await this.model.find().sort({ code: -1 }).limit(1)
+
+      if (cars.length > 0) {
+        const newestCar = cars[0]
+        const newestCarCode = newestCar.code
+
+        const codeArr = newestCarCode.split('.')
+        const codeNumber = parseInt(codeArr[1])
+
+        const newCodeNumber = codeNumber + 1
+        const newCode = `P.${newCodeNumber.toString().padStart(4, '0')}`
+        return this.success(res, newCode)
+      }
+
+      return this.success(res, 'P.0001')
+    } catch (error) {
+      return this.serverError(res, error)
+    }
+  }
+
+  get = async (req, res) => {
+    try {
+      const car = await this.model.findOne({ _id: req.params.id }).populate('manufacturer')
+
+      if (!car) {
+        return this.notFound(res)
+      }
+
+      return this.success(res, car)
+    } catch (error) {
+      return this.serverError(res, error)
+    }
+  }
 }
 
 const carController = new CarController(Car, Manufacturer)

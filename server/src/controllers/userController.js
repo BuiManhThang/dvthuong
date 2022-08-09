@@ -1,4 +1,5 @@
 import User from '../models/user.js'
+import Cart from '../models/cart.js'
 import { body, validationResult } from 'express-validator'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
@@ -20,21 +21,12 @@ export const getUsers = async (req, res) => {
 }
 
 export const createUser = [
-  body('fullName')
-    .trim()
-    .isLength({ max: 80, min: 1 })
-    .withMessage('Bắt buộc nhập tên người dùng, khôn quá 80 ký tự')
-    .escape(),
   body('email')
     .trim()
     .isLength({ max: 256, min: 1 })
     .withMessage('Bắt buộc nhập email, không quá 256 ký tự')
     .isEmail()
     .withMessage('Sai định dạng email')
-    .escape(),
-  body('phoneNumber')
-    .isLength({ max: 10, min: 10 })
-    .withMessage('Bắt buộc nhập số điện thoại có 10 số')
     .escape(),
   body('password')
     .isLength({ max: 32, min: 6 })
@@ -54,21 +46,13 @@ export const createUser = [
         })
       }
 
-      const { email, password, confirmPassword, phoneNumber, fullName, address } = req.body
+      const { email, password, confirmPassword, address } = req.body
 
       const foundUserByEmail = await User.findOne({ email })
       if (foundUserByEmail) {
         return res.status(400).json({
           success: false,
           errors: [{ param: 'email', msg: 'Email đã tồn tại trong hệ thống' }],
-        })
-      }
-
-      const phoneNumberRegex = /^\d+$/i
-      if (!phoneNumberRegex.test(phoneNumber)) {
-        return res.status(400).json({
-          success: false,
-          errors: [{ param: 'phoneNumber', msg: 'Sai định dạng số điện thoại' }],
         })
       }
 
@@ -91,12 +75,12 @@ export const createUser = [
       const salt = await bcrypt.genSalt(10)
       const encodedPassword = await bcrypt.hash(password, salt)
 
+      const fullName = email.split('@')[0]
       const newUser = new User({
         fullName,
         email,
         password: encodedPassword,
         address,
-        phoneNumber,
       })
 
       const savedUser = await newUser.save()
@@ -110,6 +94,13 @@ export const createUser = [
         sameSite: 'None',
         secure: true,
       })
+
+      const cart = new Cart({
+        user: savedUser._id,
+        cars: [],
+      })
+
+      await cart.save()
 
       const { password: userPassword, ...info } = savedUser.toJSON()
       return res.json({ success: true, data: info })
@@ -134,9 +125,16 @@ export const getUser = async (req, res) => {
       })
     }
     const { password, ...info } = foundUser.toJSON()
+
+    const cart = await Cart.findOne({ user: info._id })
+    let products = []
+    if (cart) {
+      products = cart.cars
+    }
+
     return res.json({
       success: true,
-      data: info,
+      data: { ...info, products },
     })
   } catch (error) {
     return res.status(500).json({
@@ -171,16 +169,70 @@ export const signIn = async (req, res) => {
       expiresIn: '1d',
     })
     res.cookie('token', token, {
-      expire: new Date() + 86400000,
+      maxAge: 86400000,
       httpOnly: true,
       sameSite: 'None',
       secure: true,
     })
 
     const { password: userPassword, ...info } = foundUser.toJSON()
+
+    const cart = await Cart.findOne({ user: info._id })
+    let products = []
+    if (cart) {
+      products = cart.cars
+    }
+
     return res.json({
       success: true,
-      data: info,
+      data: { ...info, products },
+    })
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      msg: 'Server error',
+      errors: error,
+    })
+  }
+}
+
+export const getCurrentUser = async (req, res) => {
+  try {
+    const userId = req.body.userId
+    const user = await User.findOne({ _id: userId })
+
+    if (!user) {
+      return res.sendStatus(401)
+    }
+
+    const { password, ...info } = user.toJSON()
+
+    const cart = await Cart.findOne({ user: info._id })
+    let products = []
+    if (cart) {
+      products = cart.cars
+    }
+
+    return res.json({
+      success: true,
+      data: { ...info, products },
+    })
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      msg: 'Server error',
+      errors: error,
+    })
+  }
+}
+
+export const signOut = async (req, res) => {
+  try {
+    res.clearCookie('token')
+
+    return res.json({
+      success: true,
+      data: true,
     })
   } catch (error) {
     return res.status(500).json({

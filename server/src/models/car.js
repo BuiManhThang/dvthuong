@@ -4,9 +4,10 @@ const { Schema } = mongoose
 
 const carSchema = new Schema(
   {
+    code: { type: String, required: true },
     name: { type: String, maxLength: 256, required: true },
     manufacturer: { type: Schema.Types.ObjectId, ref: 'Manufacturer', required: true },
-    image: { type: String, required: true },
+    image: { type: String },
     number: { type: Number, default: 0 },
     price: { type: Number, required: true },
     gallery: [{ type: String, default: '' }],
@@ -14,7 +15,7 @@ const carSchema = new Schema(
       {
         colorName: { type: String, default: '' },
         color: { type: String, default: '' },
-        image: { type: String, default: '' },
+        images: [{ type: String, default: '' }],
       },
     ],
     cylinderCapacity: { type: Number, default: 0 },

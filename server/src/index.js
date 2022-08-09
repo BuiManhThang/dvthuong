@@ -11,6 +11,7 @@ import connectDB from './database/connect.js'
 import userRouter from './routers/userRouter.js'
 import manufacturerRouter from './routers/manufacturerRouter.js'
 import carRouter from './routers/carRouter.js'
+import cartRouter from './routers/cartRouter.js'
 
 dotenv.config()
 const PORT = process.env.PORT || 3000
@@ -36,6 +37,7 @@ app.use(
 app.use('/api/v1/users', userRouter)
 app.use('/api/v1/manufacturers', manufacturerRouter)
 app.use('/api/v1/cars', carRouter)
+app.use('/api/v1/carts', cartRouter)
 
 app.listen(PORT, () => {
   console.log(`App is running at http://localhost:${PORT}`)

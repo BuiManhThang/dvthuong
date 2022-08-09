@@ -8,7 +8,6 @@ const validators = [
     .isLength({ max: 256, min: 1 })
     .withMessage('Bắt buộc nhập tên sản phẩm, tối đa 256 ký tự')
     .escape(),
-  body('image').trim().isLength({ min: 1 }).withMessage('Bắt buộc nhập hình ảnh của sản phẩm'),
   body('price')
     .isLength({ min: 1 })
     .withMessage('Bắt buộc nhập giá sản phẩm')
@@ -26,6 +25,8 @@ const validators = [
 const carRouter = Router()
 
 carRouter.get('/q', carController.getCarsByManufacturer)
+
+carRouter.get('/newCode', carController.getNewCode)
 
 carRouter.get('/getCarsForHome', carController.getCarsForHome)
 
