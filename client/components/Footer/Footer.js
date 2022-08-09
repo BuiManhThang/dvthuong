@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { NAV_LINKS } from '../Navbar/Navbar'
 import { useAccount } from '../../hooks/accountHook'
+import Link from 'next/link'
 
 const Footer = () => {
   const [isVisible, setIsVisible] = useState(true)
@@ -88,9 +89,9 @@ const Footer = () => {
           <ul className="text-sm text-gray-400">
             {NAV_LINKS.map((link, idx) => (
               <li className="mb-5 last:mb-0" key={idx}>
-                <a className="hover:text-primary transition-colors" href={link.url}>
-                  {link.name}
-                </a>
+                <Link href={link.url}>
+                  <a className="hover:text-primary transition-colors">{link.name}</a>
+                </Link>
               </li>
             ))}
           </ul>
