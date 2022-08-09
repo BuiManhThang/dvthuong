@@ -69,10 +69,12 @@ const SignIn = () => {
       </Head>
 
       <main className={styles['main']}>
-        <a className={styles['main__logo']} href="/">
-          <div className={styles['icon']} />
-          <div className={styles['text']}>Mua ô tô</div>
-        </a>
+        <Link href="/">
+          <a className={styles['main__logo']}>
+            <div className={styles['icon']} />
+            <div className={styles['text']}>Mua ô tô</div>
+          </a>
+        </Link>
 
         <div className={styles['main__container']}>
           <h1 className={styles['main__title']}>
