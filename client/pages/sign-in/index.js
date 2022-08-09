@@ -5,19 +5,8 @@ import styles from '../../styles/SignIn.module.scss'
 import InputField from '../../components/InputField/InputField'
 import PasswordField from '../../components/PasswordField/PasswordField'
 import Button from '../../components/Button/Button'
-import axios from 'axios'
-import { useDispatch } from 'react-redux'
-import { fetchAcount, setAccount } from '../../slices/accountSlice'
-import baseApi from '../../api/BaseApi'
-import { useRouter } from 'next/router'
-
-const validateEmail = (email) => {
-  return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)
-}
-
-const validateEmpty = (text) => {
-  return text.trim() !== ''
-}
+import { useAccount } from '../../hooks/accountHook'
+import { validateEmail, validateEmpty } from '../../js/commonFn'
 
 const SignIn = () => {
   const [email, setEmail] = useState('')
@@ -25,8 +14,7 @@ const SignIn = () => {
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
   const [isTheFirstValidation, setIsTheFirstValidation] = useState(true)
-  const dispatch = useDispatch()
-  const router = useRouter()
+  const { signIn } = useAccount()
 
   useEffect(() => {
     if (!isTheFirstValidation) {
@@ -50,7 +38,7 @@ const SignIn = () => {
     }
   }, [password])
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
     setIsTheFirstValidation(false)
     let isValid = true
@@ -70,36 +58,7 @@ const SignIn = () => {
       return
     }
 
-    try {
-      // const res = await axios({
-      //   method: 'POST',
-      //   url: 'http://localhost:3001/api/v1/users/sign-in',
-      //   data: JSON.stringify({
-      //     email,
-      //     password,
-      //   }),
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   withCredentials: true,
-      // })
-      const res = await baseApi.post('/users/sign-in', {
-        email,
-        password,
-      })
-
-      if (res.data.success) {
-        dispatch(
-          setAccount({
-            ...res.data.data,
-          })
-        )
-
-        router.push('/')
-      }
-    } catch (error) {
-      console.log(error)
-    }
+    signIn(email, password)
   }
 
   return (

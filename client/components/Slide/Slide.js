@@ -1,7 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 
-const Slide = ({ items = [], height = 500, delay = 0, isPagination = true }) => {
+const Slide = ({
+  items = [],
+  height = 500,
+  delay = 0,
+  isPagination = true,
+  objectFit = 'cover',
+}) => {
   const [value, setValue] = useState(1)
   const [timeoutFunc, setTimeoutFunc] = useState(null)
   const [containerWidth, setContainerWidth] = useState(0)
@@ -11,7 +17,7 @@ const Slide = ({ items = [], height = 500, delay = 0, isPagination = true }) => 
 
   useEffect(() => {
     let width = containerWidth
-    if (!containerWidth) {
+    if (!containerWidth && containerRef.current) {
       width = parseInt(containerRef.current.getBoundingClientRect().width)
       sliderRef.current.style.transform = `translateX(-${value * width}px)`
       setContainerWidth(width)
@@ -37,9 +43,11 @@ const Slide = ({ items = [], height = 500, delay = 0, isPagination = true }) => 
     if (containerWidthProp) {
       currentContainerWidth = containerWidthProp
     }
-    sliderRef.current.style.transform = `translateX(-${newVal * currentContainerWidth}px)`
-    sliderRef.current.style.transition = 'transform 0.3s linear'
-    setValue(newVal)
+    if (sliderRef.current) {
+      sliderRef.current.style.transform = `translateX(-${newVal * currentContainerWidth}px)`
+      sliderRef.current.style.transition = 'transform 0.3s linear'
+      setValue(newVal)
+    }
   }
 
   const nextItem = () => {
@@ -79,34 +87,39 @@ const Slide = ({ items = [], height = 500, delay = 0, isPagination = true }) => 
         height: height,
       }}
     >
-      <div
-        className="group absolute top-1/2 left-4 -translate-y-1/2 z-10 fill-white h-14 w-14 rounded-full flex justify-center items-center bg-blue-200 overflow-hidden cursor-pointer hover:bg-blue-500 transition-colors shadow-md border border-white border-solid"
-        onClick={prevItem}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          height="48"
-          width="48"
-          className="relative left-[6px] scale-75 group-hover:scale-90 transition-all"
+      {items.length > 1 && (
+        <div
+          className="group absolute top-1/2 left-4 -translate-y-1/2 z-10 fill-white h-8 w-8 rounded-full flex justify-center items-center bg-blue-200 overflow-hidden cursor-pointer hover:bg-blue-500 transition-colors shadow-md border border-white border-solid"
+          onClick={prevItem}
         >
-          <path d="M21.2 45.2 0 24 21.2 2.8l4 4.05L8.05 24 25.2 41.15Z" />
-        </svg>
-      </div>
-      <div
-        className="group absolute top-1/2 right-4 -translate-y-1/2 z-10 fill-white h-14 w-14 rounded-full flex justify-center items-center bg-blue-200 overflow-hidden cursor-pointer hover:bg-blue-500 transition-colors shadow-md border border-white border-solid"
-        onClick={nextItem}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          height="48"
-          width="48"
-          className="relative left-[2px] scale-75 group-hover:scale-90 transition-all"
-        >
-          <path d="m15.2 45.1-4-4.05L28.35 23.9 11.2 6.75l4-4.05 21.2 21.2Z" />
-        </svg>
-      </div>
+          <svg
+            className="relative left-[4px] scale-75 group-hover:scale-90 transition-all"
+            xmlns="http://www.w3.org/2000/svg"
+            height="24"
+            width="24"
+          >
+            <path d="M10 21.65.35 12 10 2.35l1.425 1.425L3.175 12l8.25 8.225Z" />
+          </svg>
+        </div>
+      )}
 
-      {isPagination && (
+      {items.length > 1 && (
+        <div
+          className="group absolute top-1/2 right-4 -translate-y-1/2 z-10 fill-white h-8 w-8 rounded-full flex justify-center items-center bg-blue-200 overflow-hidden cursor-pointer hover:bg-blue-500 transition-colors shadow-md border border-white border-solid"
+          onClick={nextItem}
+        >
+          <svg
+            className="relative left-[1px] scale-75 group-hover:scale-90 transition-all"
+            xmlns="http://www.w3.org/2000/svg"
+            height="24"
+            width="24"
+          >
+            <path d="M8.025 21.65 6.6 20.225 14.825 12 6.6 3.775 8.025 2.35l9.65 9.65Z" />
+          </svg>
+        </div>
+      )}
+
+      {isPagination && items.length > 1 && (
         <div className="absolute z-10 bottom-3 left-1/2 -translate-x-1/2 flex items-center space-x-4">
           {items.map((_, idx) => {
             let className =
@@ -137,7 +150,7 @@ const Slide = ({ items = [], height = 500, delay = 0, isPagination = true }) => 
               }}
               className={className}
             >
-              <Image className="object-cover object-center" layout="fill" src={item.src} />
+              <Image layout="fill" src={item.src} objectFit={objectFit} objectPosition="center" />
             </li>
           )
         })}

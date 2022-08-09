@@ -3,9 +3,8 @@ import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import Link from 'next/link'
 import { useSelector } from 'react-redux'
-import baseApi from '../api/BaseApi'
 
-export default function Home({ productsForHome }) {
+export default function Home() {
   const account = useSelector((state) => state.account.accountInfo)
   console.log(account)
   return (
@@ -44,19 +43,4 @@ export default function Home({ productsForHome }) {
       </footer>
     </div>
   )
-}
-
-export async function getServerSideProps(context) {
-  console.log(1)
-  const res = await baseApi.get('/cars/getCarsForHome')
-  let productsForHome = []
-  if (res.data.success) {
-    productsForHome = res.data.data
-  }
-
-  return {
-    props: {
-      productsForHome,
-    },
-  }
 }

@@ -1,11 +1,14 @@
 import React from 'react'
+import Link from 'next/link'
 
 const Logo = ({ className }) => {
   return (
-    <a className={`flex items-center ${className}`} href="/home">
-      <div className="h-[30px] w-[30px] rounded-full bg-primary mr-3" />
-      <div className="text-xl font-bold">Mua ô tô</div>
-    </a>
+    <Link href="/home">
+      <a className={`flex items-center ${className}`}>
+        <div className="h-[30px] w-[30px] rounded-full bg-primary mr-3" />
+        <div className="text-xl font-bold">Mua ô tô</div>
+      </a>
+    </Link>
   )
 }
 
