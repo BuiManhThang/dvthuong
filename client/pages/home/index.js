@@ -12,7 +12,7 @@ import Img3 from '../../assets/images/slide/69940876_p0.jpg'
 import Img4 from '../../assets/images/slide/80678254_p0.png'
 import Img5 from '../../assets/images/slide/90826733_p0.png'
 
-const HomePage = ({ productsForHome1 }) => {
+const HomePage = () => {
   const items = [
     {
       src: Img1,
@@ -91,18 +91,18 @@ const HomePage = ({ productsForHome1 }) => {
   )
 }
 
-export async function getServerSideProps(context) {
-  const res = await baseApi.get('/cars/getCarsForHome')
-  let productsForHome = []
-  if (res.data.success) {
-    productsForHome = res.data.data
-  }
+// export async function getServerSideProps(context) {
+//   const res = await baseApi.get('/cars/getCarsForHome')
+//   let productsForHome = []
+//   if (res.data.success) {
+//     productsForHome = res.data.data
+//   }
 
-  return {
-    props: {
-      productsForHome1: productsForHome,
-    },
-  }
-}
+//   return {
+//     props: {
+//       productsForHome1: productsForHome,
+//     },
+//   }
+// }
 
 export default HomePage

@@ -88,7 +88,7 @@ const convertDetailProduct = (productData) => {
   return result
 }
 
-const ProductDetail = ({ productDetail1 }) => {
+const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState(0)
   const [slideHeight, setSlideHeight] = useState(400)
   const [productDetail, setProductDetail] = useState(null)
@@ -292,19 +292,19 @@ const ProductDetail = ({ productDetail1 }) => {
   )
 }
 
-export async function getServerSideProps(context) {
-  const productID = context.query.id
-  const res = await baseApi.get(`/cars/${productID}`)
-  let productDetail = null
-  if (res.data.success) {
-    productDetail = res.data.data
-  }
+// export async function getServerSideProps(context) {
+//   const productID = context.query.id
+//   const res = await baseApi.get(`/cars/${productID}`)
+//   let productDetail = null
+//   if (res.data.success) {
+//     productDetail = res.data.data
+//   }
 
-  return {
-    props: {
-      productDetail1: productDetail,
-    },
-  }
-}
+//   return {
+//     props: {
+//       productDetail1: productDetail,
+//     },
+//   }
+// }
 
 export default ProductDetail
