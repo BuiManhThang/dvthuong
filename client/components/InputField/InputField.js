@@ -75,7 +75,10 @@ const InputField = ({
             placeholder={placeholder}
             value={value}
             disabled={disabled}
-            onChange={(e) => onInput(e)}
+            onChange={(e) => {
+              console.log(e.target.value)
+              onInput(e)
+            }}
           />
           {error && (
             <label

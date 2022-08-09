@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux'
 import { ButtonType } from '../Button/Button'
 import { TypeStyle } from '../InputField/InputField'
 import { useValidate } from '../../hooks/validationHook'
+import { openToastMsg } from '../../slices/toastMsgSlice'
+import { ToastMsgStatus } from '../../enums/ToastMsgEnum'
 import baseApi from '../../api/BaseApi'
 
 import Popup from '../Popup/Popup'
@@ -43,6 +46,28 @@ const INITIAL_PRODUCT_DATA = {
   },
 }
 
+const BRAKE_OPTIONS = [
+  {
+    _id: 1,
+    name: 'Phanh đĩa',
+  },
+  {
+    _id: 2,
+    name: 'Phanh tang trống',
+  },
+]
+
+const TRUE_FALSE_OPTIONS = [
+  {
+    _id: true,
+    name: 'Có',
+  },
+  {
+    _id: false,
+    name: 'Không',
+  },
+]
+
 const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
   const [productData, setProductData] = useState(JSON.parse(JSON.stringify(INITIAL_PRODUCT_DATA)))
 
@@ -82,30 +107,37 @@ const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
     length: {
       name: 'Dài (mm)',
       rules: ['required'],
+      parent: 'size',
     },
     width: {
       name: 'Rộng (mm)',
       rules: ['required'],
+      parent: 'size',
     },
     height: {
       name: 'Cao (mm)',
       rules: ['required'],
+      parent: 'size',
     },
     numberOfSeats: {
       name: 'Số ghế',
       rules: ['required'],
+      parent: 'detail',
     },
     weight: {
       name: 'Cân nặng (kg)',
       rules: ['required'],
+      parent: 'detail',
     },
     engineType: {
       name: 'Kiều động cơ',
       rules: ['required'],
+      parent: 'detail',
     },
     energySystem: {
       name: 'Hệ thống nhiên liệu',
       rules: ['required'],
+      parent: 'detail',
     },
     colors: {
       name: 'Màu xe',
@@ -114,11 +146,16 @@ const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
   })
 
   const [isLoading, setIsLoading] = useState(false)
+  const [isFirstValidate, setIsFirstValidate] = useState(true)
   const [manufacturerList, setManufacturerList] = useState([])
+
+  const dispatch = useDispatch()
 
   useEffect(() => {
     if (!isActive) {
       setProductData(JSON.parse(JSON.stringify(INITIAL_PRODUCT_DATA)))
+      setIsFirstValidate(true)
+      clearErrors()
     } else {
       const getInitialData = async () => {
         setIsLoading(true)
@@ -149,32 +186,44 @@ const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
     }
   }, [isActive])
 
-  const brakeOptions = [
-    {
-      _id: 1,
-      name: 'Phanh đĩa',
-    },
-    {
-      _id: 2,
-      name: 'Phanh tang trống',
-    },
-  ]
-
-  const trueFalseOptions = [
-    {
-      _id: true,
-      name: 'Có',
-    },
-    {
-      _id: false,
-      name: 'Không',
-    },
-  ]
+  useEffect(() => {
+    if (!isFirstValidate) {
+      validate(productData)
+    }
+  }, [productData])
 
   const handleSaveProduct = async (e) => {
     e.preventDefault()
+    setIsFirstValidate(false)
     if (validate(productData)) {
       console.log('success')
+      setIsLoading(true)
+      try {
+        const res = await baseApi.post('cars', productData)
+        if (res.data.success) {
+          setIsLoading(false)
+          dispatch(
+            openToastMsg({
+              status: ToastMsgStatus.Success,
+              msg: `Lưu thành công thông tin sản phẩm với mã <${productData.code}>`,
+            })
+          )
+          onClose()
+        }
+      } catch (error) {
+        setIsLoading(false)
+        console.log(error.response)
+        if (error.response.status === 400) {
+          setServerErrors(error.response.data.errors)
+        }
+        console.log(error)
+        dispatch(
+          openToastMsg({
+            status: ToastMsgStatus.Error,
+            msg: 'Có lỗi xảy ra',
+          })
+        )
+      }
     }
   }
 
@@ -257,6 +306,7 @@ const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
                 required
                 items={manufacturerList}
                 value={productData.manufacturer}
+                error={errors.manufacturer}
                 onChange={(e) =>
                   setProductData({
                     ...productData,
@@ -265,6 +315,25 @@ const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
                 }
               />
             </div>
+            <div className="w-96">
+              <InputFieldNumber
+                name="price"
+                id="price"
+                label="Giá cơ bản"
+                required={true}
+                value={productData.price}
+                error={errors.price}
+                onInput={(e) =>
+                  setProductData({
+                    ...productData,
+                    price: e,
+                  })
+                }
+              />
+            </div>
+          </div>
+
+          <div className="mb-2 flex items-center gap-x-4">
             <div className="w-[184px]">
               <InputFieldNumber
                 name="number"
@@ -297,9 +366,6 @@ const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
                 }
               />
             </div>
-          </div>
-
-          <div className="mb-2 flex items-center gap-x-4">
             <div className="w-[184px]">
               <InputFieldNumber
                 name="fuelCapacity"
@@ -332,6 +398,9 @@ const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
                 }
               />
             </div>
+          </div>
+
+          <div className="mb-2 flex items-center gap-x-4">
             <div className="w-[117px]">
               <InputFieldNumber
                 name="length"
@@ -355,7 +424,7 @@ const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
               <InputFieldNumber
                 name="width"
                 id="width"
-                label="Rông"
+                label="Rộng"
                 required={true}
                 value={productData.size.width}
                 error={errors.width}
@@ -376,7 +445,7 @@ const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
                 id="height"
                 label="Cao"
                 required={true}
-                value={productData.height}
+                value={productData.size.height}
                 error={errors.height}
                 onInput={(e) =>
                   setProductData({
@@ -401,6 +470,7 @@ const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
                 height={384}
                 required
                 value={productData.image}
+                error={errors.image}
                 onChange={(e) =>
                   setProductData({
                     ...productData,
@@ -416,6 +486,7 @@ const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
                 required
                 width={384}
                 height={384}
+                error={errors.colors}
                 onChange={(e) =>
                   setProductData({
                     ...productData,
@@ -517,7 +588,7 @@ const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
                 id="frontBrake"
                 name="frontBrake"
                 label="Phanh trước"
-                items={brakeOptions}
+                items={BRAKE_OPTIONS}
                 value={productData.detail.frontBrake}
                 onChange={(e) =>
                   setProductData({
@@ -535,7 +606,7 @@ const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
                 id="backBrake"
                 name="backBrake"
                 label="Phanh sau"
-                items={brakeOptions}
+                items={BRAKE_OPTIONS}
                 value={productData.detail.backBrake}
                 onChange={(e) =>
                   setProductData({
@@ -556,7 +627,7 @@ const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
                 name="powerSupport"
                 id="powerSupport"
                 label="Hệ thống trợ lực"
-                items={trueFalseOptions}
+                items={TRUE_FALSE_OPTIONS}
                 value={productData.detail.powerSupport}
                 onChange={(e) =>
                   setProductData({
@@ -574,7 +645,7 @@ const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
                 name="eco"
                 id="eco"
                 label="Eco"
-                items={trueFalseOptions}
+                items={TRUE_FALSE_OPTIONS}
                 value={productData.detail.eco}
                 onChange={(e) =>
                   setProductData({
@@ -592,7 +663,7 @@ const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
                 name="warningSystem"
                 id="warningSystem"
                 label="Hệ thống cảnh báo"
-                items={trueFalseOptions}
+                items={TRUE_FALSE_OPTIONS}
                 value={productData.detail.warningSystem}
                 onChange={(e) =>
                   setProductData({

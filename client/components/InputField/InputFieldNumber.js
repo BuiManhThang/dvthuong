@@ -21,6 +21,14 @@ const InputFieldNumber = ({
     }
   }, [])
 
+  useEffect(() => {
+    if (value) {
+      setValueInput(numberWithCommas(value))
+    } else {
+      setValueInput('')
+    }
+  }, [value])
+
   let inputClass =
     'h-10 text-right w-full text-sm text-black outline-none border border-gray-300 rounded-md pl-3 pr-3 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors caret-primary'
   if (error) {
@@ -29,8 +37,8 @@ const InputFieldNumber = ({
   }
 
   const handleChange = (e) => {
-    setValueInput(e.target.value ? numberWithCommas(e.target.value.replace('.', '')) : '')
-    onInput(e.target.value)
+    const number = Number(e.target.value.replaceAll('.', ''))
+    onInput(number)
   }
 
   const handleKeyDown = (e) => {

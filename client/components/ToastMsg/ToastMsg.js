@@ -54,7 +54,7 @@ const ToastMsg = () => {
       </div>
       <div
         className="ml-2 flex items-center cursor-pointer hover:text-primary"
-        onClick={() => closeToastMsg()}
+        onClick={() => dispatch(closeToastMsg())}
       >
         <i className="fa-solid fa-xmark"></i>
       </div>

@@ -36,7 +36,7 @@ const Popup = ({
       <div
         style={{
           paddingTop: '24px',
-          paddingBottom: footer ? '' : '24px',
+          paddingBottom: footer ? null : '24px',
         }}
         className="relative bg-white min-w-[300px] h-min rounded-xl shadow-[0_0_10px_0_rgba(0,0,0,0.15)]"
       >

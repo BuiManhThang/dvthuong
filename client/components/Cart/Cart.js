@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useCart } from '../../hooks/cartHook'
 import { convertPrice } from '../../js/commonFn'
 import Popup from '../Popup/Popup'
@@ -9,18 +9,32 @@ import Image from 'next/image'
 
 import EmptyCartImage from '../../assets/images/cart-empty.jpg'
 
-const Cart = () => {
+const Cart = ({ isActive }) => {
   const { products, totalNumber, totalMoney, isLoading, toggleCart, fetchCart } = useCart()
+  const [storedProducts, setStoredProducts] = useState([0, 0, 0])
 
   useEffect(() => {
-    fetchCart()
-  }, [])
+    if (isActive) {
+      const cart = localStorage.getItem('cart')
+      if (cart) {
+        const cartJSON = JSON.parse(cart)
+        if (cartJSON.length) {
+          setStoredProducts(cartJSON)
+        }
+        setStoredProducts[(0, 0, 0)]
+      } else {
+        setStoredProducts[(0, 0, 0)]
+      }
+
+      fetchCart()
+    }
+  }, [isActive])
 
   return (
-    <Popup title="Giỏ hàng" onClose={() => toggleCart(false)}>
+    <Popup isActive={isActive} title="Giỏ hàng" onClose={() => toggleCart(false)}>
       {isLoading ? (
         <div className="w-[500px]">
-          {[0, 1, 2].map((idx) => (
+          {storedProducts.map((_, idx) => (
             <div
               key={idx}
               className="flex border-b first:border-t border-gray-300 h-[137px] py-3 pr-3"

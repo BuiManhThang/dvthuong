@@ -18,7 +18,12 @@ export const useValidate = (fields) => {
       const field = fields[key]
       const rules = field.rules
       const name = field.name
-      const value = data[key]
+      let value = data[key]
+      const parent = field.parent
+
+      if (parent) {
+        value = data[parent][key]
+      }
 
       validationResult[key] = ''
 
@@ -50,7 +55,7 @@ export const useValidate = (fields) => {
             return colorItem.colorName.trim() === '' || colorItem.images.length === 0
           })
         ) {
-          validationResult[key] = `${name} cần được điền đủ thống tin`
+          validationResult[key] = `${name} cần được điền đủ thông tin`
           isValid = false
           continue
         }

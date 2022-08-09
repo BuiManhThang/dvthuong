@@ -29,7 +29,7 @@ const Combobox = ({
     'h-10 w-full text-sm text-black outline-none border border-gray-300 rounded-md pl-3 pr-3 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors caret-primary'
   if (error) {
     inputClass =
-      'h-10 w-full text-sm text-black outline-none border border-red-600 rounded-md pl-3 pr-9 focus:border-red-600 focus:ring-2 focus:ring-red-600/20 transition-colors caret-red-600'
+      'h-10 w-full text-sm text-black outline-none border border-red-600 rounded-md pl-3 pr-16 focus:border-red-600 focus:ring-2 focus:ring-red-600/20 transition-colors caret-red-600'
   }
 
   let itemListClass =
@@ -58,7 +58,13 @@ const Combobox = ({
     }
 
     if (!isActive) {
-      setValueInput(items.find((item) => item._id === value)?.name || '')
+      const foundedItem = items.find((item) => item._id === value)
+      if (foundedItem) {
+        setValueInput(foundedItem.name)
+      } else {
+        setValueInput('')
+        setRenderedItems([...items])
+      }
     }
   }, [isActive])
 
@@ -223,11 +229,16 @@ const Combobox = ({
                 </li>
               )
             })}
+            {renderedItems.length === 0 && (
+              <li className="text-gray-500 h-10 text-sm w-full flex items-center justify-center px-4 bg-white">
+                Không có dữ liệu
+              </li>
+            )}
           </ul>
         </div>
         {error && (
           <label
-            className="group absolute top-9 right-3 text-red-600 flex items-center"
+            className="group absolute top-9 right-11 text-red-600 flex items-center"
             htmlFor={id}
           >
             <i className="fa-solid fa-circle-exclamation"></i>

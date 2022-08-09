@@ -50,7 +50,7 @@ const Container = ({ children }) => {
 
   return (
     <div ref={containerRef} className={className}>
-      {isActiveCart && <Cart />}
+      <Cart isActive={isActiveCart} />
       {children}
     </div>
   )
