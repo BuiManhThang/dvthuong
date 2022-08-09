@@ -7,8 +7,13 @@ import Button from '../../components/Button/Button'
 import Gallery from '../../components/Gallery/Gallery'
 import ProductCard from '../../components/ProductCard/ProductCard'
 import { convertPrice, numberWithCommas } from '../../js/commonFn'
+import { useRouter } from 'next/router'
 
 const convertDetailProduct = (productData) => {
+  if (!productData) {
+    return []
+  }
+
   const result = []
   const detailProduct = productData.detail
 
@@ -83,28 +88,16 @@ const convertDetailProduct = (productData) => {
   return result
 }
 
-const ProductDetail = ({ productDetail }) => {
-  console.log(productDetail)
-
-  const title = `Sản phẩm ${productDetail.name}`
-  const price = convertPrice(productDetail.price)
-  const size = `${numberWithCommas(productDetail?.size?.length)} x ${numberWithCommas(
-    productDetail?.size?.width
-  )} x ${numberWithCommas(productDetail?.size?.height)} (cm)`
-
-  const formattedColorList = productDetail.colors.map((color) => {
-    const formattedImages = color.images.map((image) => ({ src: image }))
-    return {
-      ...color,
-      formattedImages,
-    }
-  })
-
-  const formattedproductDetail = convertDetailProduct(productDetail)
-
+const ProductDetail = ({ productDetail1 }) => {
   const [selectedColor, setSelectedColor] = useState(0)
   const [slideHeight, setSlideHeight] = useState(400)
+  const [productDetail, setProductDetail] = useState(null)
   const [relatedProducts, setRelatedProduct] = useState([])
+  const [formattedColorList, setFormattedColorList] = useState([])
+
+  const router = useRouter()
+
+  const formattedproductDetail = convertDetailProduct(productDetail)
 
   useEffect(() => {
     if (window.innerWidth < 976) {
@@ -113,9 +106,9 @@ const ProductDetail = ({ productDetail }) => {
       setSlideHeight(600)
     }
 
-    const getRelatedProducts = async () => {
+    const getRelatedProducts = async (product) => {
       try {
-        const res = await baseApi.get(`/cars/q?manufacturer=${productDetail.manufacturer._id}`)
+        const res = await baseApi.get(`/cars/q?manufacturer=${product.manufacturer._id}`)
         if (res.data.success) {
           setRelatedProduct(res.data.data)
         }
@@ -124,7 +117,32 @@ const ProductDetail = ({ productDetail }) => {
       }
     }
 
-    getRelatedProducts()
+    const getProductData = async () => {
+      const productID = router.query.id
+      const res = await baseApi.get(`/cars/${productID}`)
+      let productDetail = null
+      if (res.data.success) {
+        productDetail = res.data.data
+
+        const formattedColorList = productDetail.colors.map((color) => {
+          const formattedImages = color.images.map((image) => ({ src: image }))
+          return {
+            ...color,
+            formattedImages,
+          }
+        })
+
+        setFormattedColorList(formattedColorList)
+      }
+
+      setProductDetail(productDetail)
+      return productDetail
+    }
+
+    getProductData().then((productDetail) => {
+      getRelatedProducts(productDetail)
+    })
+
     const windowResize = () => {
       if (window.innerWidth < 976) {
         setSlideHeight(400)
@@ -142,7 +160,7 @@ const ProductDetail = ({ productDetail }) => {
   return (
     <div>
       <Head>
-        <title>{title}</title>
+        <title>{`Sản phẩm ${productDetail?.name}`}</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
@@ -150,19 +168,21 @@ const ProductDetail = ({ productDetail }) => {
         <div className="mt-10 grid-cols-3 gap-x-10 lg:grid">
           <div className="relative w-full shadow-md rounded-lg col-start-1 col-end-3">
             <Slide
-              items={formattedColorList[selectedColor].formattedImages}
+              items={
+                formattedColorList.length ? formattedColorList[selectedColor].formattedImages : []
+              }
               height={slideHeight}
               objectFit="contain"
             />
           </div>
           <div className="mt-8 lg:mt-0 col-start-3 col-end-4 lg:flex lg:flex-col lg:justify-between">
-            <h1 className="text-4xl font-bold mb-6">{productDetail.name}</h1>
+            <h1 className="text-4xl font-bold mb-6">{productDetail?.name}</h1>
             <div className="mb-2">
-              <h2 className="text-xl font-bold">Giá từ: {price}</h2>
+              <h2 className="text-xl font-bold">Giá từ: {convertPrice(productDetail?.price)}</h2>
               <div className="text-sm italic">*Thông tin mức giá chỉ mang tính chất tham khảo</div>
             </div>
             <div className="font-medium mb-2">
-              Dung tích xi lanh: {numberWithCommas(productDetail.cylinderCapacity)}
+              Dung tích xi lanh: {numberWithCommas(productDetail?.cylinderCapacity)}
             </div>
             <div className="font-medium mb-2">
               Nhà cung cấp: {productDetail?.manufacturer?.name}
@@ -173,7 +193,12 @@ const ProductDetail = ({ productDetail }) => {
             <div className="font-medium mb-2">
               Mức tiêu thu nhiên liệu: {productDetail?.consumption}
             </div>
-            <div className="font-medium mb-2">Dài x rộng x cao: {size}</div>
+            <div className="font-medium mb-2">
+              Dài x rộng x cao:{' '}
+              {`${numberWithCommas(productDetail?.size?.length)} x ${numberWithCommas(
+                productDetail?.size?.width
+              )} x ${numberWithCommas(productDetail?.size?.height)} (cm)`}
+            </div>
             <div className="font-medium mb-2">Chọn màu</div>
             <ul className="flex pl-[2px] gap-x-3 mb-4 h-10 items-center transition-all">
               {formattedColorList.map((color, idx) => {
@@ -277,7 +302,7 @@ export async function getServerSideProps(context) {
 
   return {
     props: {
-      productDetail,
+      productDetail1: productDetail,
     },
   }
 }

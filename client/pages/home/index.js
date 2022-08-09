@@ -12,7 +12,7 @@ import Img3 from '../../assets/images/slide/69940876_p0.jpg'
 import Img4 from '../../assets/images/slide/80678254_p0.png'
 import Img5 from '../../assets/images/slide/90826733_p0.png'
 
-const HomePage = ({ productsForHome }) => {
+const HomePage = ({ productsForHome1 }) => {
   const items = [
     {
       src: Img1,
@@ -32,6 +32,7 @@ const HomePage = ({ productsForHome }) => {
   ]
 
   const [windowWidth, setWindowWidth] = useState(0)
+  const [productsForHome, setProductsForHome] = useState([])
 
   useEffect(() => {
     setWindowWidth(window.innerWidth)
@@ -40,7 +41,18 @@ const HomePage = ({ productsForHome }) => {
       setWindowWidth(window.innerWidth)
     }
 
+    const fetchData = async () => {
+      const res = await baseApi.get('/cars/getCarsForHome')
+      let productsForHome = []
+      if (res.data.success) {
+        productsForHome = res.data.data
+      }
+
+      setProductsForHome(productsForHome)
+    }
+
     window.addEventListener('resize', setWindowWidthFunc)
+    fetchData()
 
     return () => {
       window.removeEventListener('resize', setWindowWidthFunc)
@@ -88,7 +100,7 @@ export async function getServerSideProps(context) {
 
   return {
     props: {
-      productsForHome,
+      productsForHome1: productsForHome,
     },
   }
 }
