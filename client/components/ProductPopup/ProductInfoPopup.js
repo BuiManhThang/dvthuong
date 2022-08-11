@@ -68,7 +68,7 @@ const TRUE_FALSE_OPTIONS = [
   },
 ]
 
-const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
+const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = () => {} }) => {
   const [productData, setProductData] = useState(JSON.parse(JSON.stringify(INITIAL_PRODUCT_DATA)))
 
   const { errors, validate, clearErrors, setServerErrors } = useValidate({
@@ -182,7 +182,34 @@ const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
         }
       }
 
-      getInitialData()
+      const getInitialDataWithId = async (id) => {
+        setIsLoading(true)
+        try {
+          const [resManufacturers, resProduct] = await Promise.all([
+            baseApi.get('/manufacturers'),
+            baseApi.get(`/cars/${id}`),
+          ])
+          if (resManufacturers.data.success) {
+            setManufacturerList(resManufacturers.data.data)
+          }
+          if (resProduct.data.success) {
+            setProductData({
+              ...resProduct.data.data,
+              manufacturer: resProduct.data.data.manufacturer._id,
+            })
+          }
+          setIsLoading(false)
+        } catch (error) {
+          console.log(error)
+          setIsLoading(false)
+        }
+      }
+
+      if (edittingProductId) {
+        getInitialDataWithId(edittingProductId)
+      } else {
+        getInitialData()
+      }
     }
   }, [isActive])
 
@@ -196,10 +223,14 @@ const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
     e.preventDefault()
     setIsFirstValidate(false)
     if (validate(productData)) {
-      console.log('success')
       setIsLoading(true)
       try {
-        const res = await baseApi.post('cars', productData)
+        let res = null
+        if (edittingProductId) {
+          res = await baseApi.put(`/cars/${edittingProductId}`, productData)
+        } else {
+          res = await baseApi.post('cars', productData)
+        }
         if (res.data.success) {
           setIsLoading(false)
           dispatch(
@@ -208,28 +239,28 @@ const ProductInfoPopup = ({ isActive = false, onClose = () => {} }) => {
               msg: `Lưu thành công thông tin sản phẩm với mã <${productData.code}>`,
             })
           )
-          onClose()
+          onClose(true)
         }
       } catch (error) {
         setIsLoading(false)
-        console.log(error.response)
         if (error.response.status === 400) {
           setServerErrors(error.response.data.errors)
+        } else {
+          console.log(error)
+          dispatch(
+            openToastMsg({
+              status: ToastMsgStatus.Error,
+              msg: 'Có lỗi xảy ra',
+            })
+          )
         }
-        console.log(error)
-        dispatch(
-          openToastMsg({
-            status: ToastMsgStatus.Error,
-            msg: 'Có lỗi xảy ra',
-          })
-        )
       }
     }
   }
 
   return (
     <Popup
-      title="Thêm sản phẩm"
+      title={`${edittingProductId ? 'Thông tin sản phẩm' : 'Thêm sản phẩm'}`}
       isLoading={isLoading}
       isActive={isActive}
       onClose={onClose}

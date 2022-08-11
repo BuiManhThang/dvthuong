@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { ComboboxLabelPositionEnum, ComboboxOptionPositionEnum } from '../../enums/ComboboxEnum'
 
 const Combobox = ({
   id,
@@ -9,6 +10,8 @@ const Combobox = ({
   error = null,
   label = '',
   placeholder = '',
+  labelPosition = ComboboxLabelPositionEnum.Top,
+  optionPosition = ComboboxOptionPositionEnum.Bottom,
   required = false,
 }) => {
   const [isActive, setIsActive] = useState(false)
@@ -69,6 +72,10 @@ const Combobox = ({
   }, [isActive])
 
   useEffect(() => {
+    const foundedItem = items.find((item) => item._id === value)
+    if (foundedItem) {
+      setValueInput(foundedItem.name)
+    }
     setRenderedItems(JSON.parse(JSON.stringify(items)))
   }, [items])
 
@@ -89,6 +96,7 @@ const Combobox = ({
   }, [])
 
   const handleClickInput = () => {
+    setRenderedItems([...items])
     setIsActive(true)
   }
 
@@ -99,6 +107,7 @@ const Combobox = ({
       if (inputRef.current) {
         inputRef.current.focus()
       }
+      setRenderedItems([...items])
       setIsActive(true)
     }
   }
@@ -125,7 +134,6 @@ const Combobox = ({
   }
 
   const handleKeyDown = (e) => {
-    console.log(e.key)
     const { key } = e
 
     if (key !== 'Enter' && key !== 'Tab' && !isActive) {
@@ -177,11 +185,22 @@ const Combobox = ({
 
   return (
     <div ref={containerRef} className="w-full">
-      <div className="w-full relative">
-        <label className="block w-max text-sm pb-1" htmlFor={id}>
-          <span className="mr-1">{label}</span>
-          {required && <span className="text-red-600">*</span>}
-        </label>
+      <div
+        className={`w-full relative ${
+          labelPosition === ComboboxLabelPositionEnum.Left ? 'flex items-center' : ''
+        }`}
+      >
+        {label && (
+          <label
+            className={`block w-max text-sm whitespace-nowrap ${
+              labelPosition === ComboboxLabelPositionEnum.Top ? 'pb-1' : ''
+            }`}
+            htmlFor={id}
+          >
+            <span className="mr-1">{label}</span>
+            {required && <span className="text-red-600">*</span>}
+          </label>
+        )}
         <input
           ref={inputRef}
           autoComplete="off"
@@ -196,13 +215,22 @@ const Combobox = ({
         />
         <div
           className="absolute right-[1px] top-[25px] rounded-tr-md rounded-br-md flex items-center justify-center w-10 h-[38px] bg-white text-gray-500 hover:bg-slate-200 transition-colors"
+          style={{
+            top: label && labelPosition === ComboboxLabelPositionEnum.Top ? '' : '1px',
+          }}
           onClick={handleClickArrow}
         >
           <div className={classArrow}>
             <i className="fa-solid fa-chevron-down"></i>
           </div>
         </div>
-        <div className={itemListClass}>
+        <div
+          className={itemListClass}
+          style={{
+            top: optionPosition === ComboboxOptionPositionEnum.Top ? 'unset' : null,
+            bottom: optionPosition === ComboboxOptionPositionEnum.Top ? 'calc(100% + 4px)' : null,
+          }}
+        >
           <ul className="w-full max-h-[200px] overflow-y-auto">
             {renderedItems.map((item) => {
               let itemClass =

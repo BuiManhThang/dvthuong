@@ -8,6 +8,10 @@ const validators = [
 
 const manufacturerRouter = Router()
 
+manufacturerRouter.get('/query', manufacturerController.getPaging)
+
+manufacturerRouter.get('/newCode', manufacturerController.getNewCode)
+
 manufacturerRouter.get('/:id', manufacturerController.get)
 
 manufacturerRouter.get('/', manufacturerController.getAll)

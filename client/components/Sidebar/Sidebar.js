@@ -54,7 +54,7 @@ const Sidebar = () => {
   }
 
   return (
-    <div className="bg-white w-full">
+    <div className="bg-white w-full border-r border-gray-300">
       <ul className="pt-6 px-2">
         {SIDEBAR_ITEMS.map((item, idx) => {
           let className =

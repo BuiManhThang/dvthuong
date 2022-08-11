@@ -26,6 +26,8 @@ const carRouter = Router()
 
 carRouter.get('/q', carController.getCarsByManufacturer)
 
+carRouter.get('/query', carController.getPaging)
+
 carRouter.get('/newCode', carController.getNewCode)
 
 carRouter.get('/getCarsForHome', carController.getCarsForHome)

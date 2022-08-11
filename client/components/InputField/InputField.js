@@ -20,6 +20,7 @@ const InputField = ({
   disabled = false,
   typeStyle = TypeStyle.Vip,
   onInput = () => {},
+  startIcon = null,
 }) => {
   const [inputFieldClass, setInputFieldClass] = useState('')
   const [inputFieldErrorClass, setInputFieldErrorClass] = useState('')
@@ -58,13 +59,19 @@ const InputField = ({
         'h-10 w-full text-sm text-black outline-none border border-red-600 rounded-md pl-3 pr-9 focus:border-red-600 focus:ring-2 focus:ring-red-600/20 transition-colors caret-red-600'
     }
 
+    if (startIcon) {
+      inputClass += ' pl-9'
+    }
+
     return (
       <div className="w-full">
         <div className="w-full relative">
-          <label className="block w-max text-sm pb-1" htmlFor={id}>
-            <span className="mr-1">{label}</span>
-            {required && <span className="text-red-600">*</span>}
-          </label>
+          {label && (
+            <label className="block w-max text-sm pb-1" htmlFor={id}>
+              <span className="mr-1">{label}</span>
+              {required && <span className="text-red-600">*</span>}
+            </label>
+          )}
           <input
             ref={inputRef}
             autoComplete="off"
@@ -89,6 +96,17 @@ const InputField = ({
               <div className="opacity-0 invisible transition-all group-hover:opacity-100 group-hover:visible absolute top-1/2 right-[calc(100%_+_4px)] -translate-y-1/2 w-max text-sm text-white bg-red-600 px-2 py-[2px] rounded-md before:absolute before:top-1/2 before:left-full before:-translate-y-1/2 before:border-t-4 before:border-b-4 before:border-t-transparent before:border-b-transparent before:border-r-4 before:border-r-red-600 before:rotate-180">
                 {error}
               </div>
+            </label>
+          )}
+          {startIcon && (
+            <label
+              className="group absolute top-8 left-3 flex items-center text-gray-500"
+              style={{
+                top: label ? '' : '9px',
+              }}
+              htmlFor={id}
+            >
+              {startIcon}
             </label>
           )}
         </div>

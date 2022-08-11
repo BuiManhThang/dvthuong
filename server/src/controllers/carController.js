@@ -120,6 +120,43 @@ class CarController extends BaseController {
       return this.serverError(res, error)
     }
   }
+
+  getPaging = async (req, res) => {
+    try {
+      const query = req.query
+      const filter = {}
+      const sort = {}
+      if (query.manufacturer) {
+        if (mongoose.Types.ObjectId.isValid(query.manufacturer)) {
+          filter.manufacturer = query.manufacturer
+        }
+      }
+      if (query.sort) {
+        const sortArr = query.sort.split('|')
+        const key = sortArr[0]
+        const direction = sortArr[1]
+        sort[key] = parseInt(direction)
+      }
+
+      const pageIndex = parseInt(query.pageIndex)
+      const pageSize = parseInt(query.pageSize)
+
+      const limit = (pageIndex - 1) * pageSize + pageSize
+      const skip = (pageIndex - 1) * pageSize
+
+      const [cars, numberCars] = await Promise.all([
+        this.model.find(filter).populate('manufacturer').sort(sort).skip(skip).limit(limit),
+        this.model.countDocuments(filter),
+      ])
+
+      return this.success(res, {
+        pageData: cars,
+        totalRecords: numberCars,
+      })
+    } catch (error) {
+      return this.serverError(res, error)
+    }
+  }
 }
 
 const carController = new CarController(Car, Manufacturer)
