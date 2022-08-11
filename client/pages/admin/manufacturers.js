@@ -95,6 +95,7 @@ const ManufacturersAdmin = () => {
   }
 
   const handleChangeSearchText = (e) => {
+    getPagingManufacturers(generateQuery({ SearchText: e.target.value }))
     setSearchText(e.target.value)
   }
 
@@ -129,8 +130,10 @@ const ManufacturersAdmin = () => {
     }
   }
 
-  const generateQuery = ({ PageSize = null, PageIndex = null, Sort = null }) => {
-    const query = `pageSize=${PageSize || pageSize}&pageIndex=${PageIndex || pageIndex}&sort=${
+  const generateQuery = ({ SearchText = null, PageSize = null, PageIndex = null, Sort = null }) => {
+    const query = `pageSize=${PageSize || pageSize}&pageIndex=${
+      PageIndex || pageIndex
+    }&searchText=${SearchText !== null ? SearchText : searchText}&sort=${
       Sort || selectedSortOption
     }`
     return query

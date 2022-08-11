@@ -4,7 +4,6 @@ import InputField from '../InputField/InputField'
 import Button from '../Button/Button'
 
 import { useValidate } from '../../hooks/validationHook'
-// import { useFetch } from '../../hooks/fetchHook'
 import { TypeStyle } from '../InputField/InputField'
 import { ButtonType } from '../Button/Button'
 import { ToastMsgStatus } from '../../enums/ToastMsgEnum'
@@ -17,6 +16,7 @@ const ManufacturerInfoPopup = ({ isActive, edittingId = '', onClose = () => {} }
   const [manufacturerCode, setManufacturerCode] = useState('')
   const [manufacturerName, setManufacturerName] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isFirstValidate, setIsFirstValidate] = useState(true)
 
   const { errors, validate, clearErrors, setServerErrors } = useValidate({
     name: {
@@ -24,7 +24,6 @@ const ManufacturerInfoPopup = ({ isActive, edittingId = '', onClose = () => {} }
       rules: ['required'],
     },
   })
-  // const { isLoading, post } = useFetch('/manufacturers')
 
   const dispatch = useDispatch()
 
@@ -33,6 +32,7 @@ const ManufacturerInfoPopup = ({ isActive, edittingId = '', onClose = () => {} }
       clearErrors()
       setManufacturerCode('')
       setManufacturerName('')
+      setIsFirstValidate(true)
     } else {
       const getInitialData = async () => {
         setIsLoading(true)
@@ -69,8 +69,17 @@ const ManufacturerInfoPopup = ({ isActive, edittingId = '', onClose = () => {} }
     }
   }, [isActive])
 
+  useEffect(() => {
+    if (!isFirstValidate) {
+      validate({
+        name: manufacturerName,
+      })
+    }
+  }, [manufacturerName])
+
   const handleSaveManufacturer = async (e) => {
     e.preventDefault()
+    setIsFirstValidate(false)
     const isValid = validate({
       name: manufacturerName,
     })

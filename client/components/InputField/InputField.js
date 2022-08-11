@@ -83,7 +83,6 @@ const InputField = ({
             value={value}
             disabled={disabled}
             onChange={(e) => {
-              console.log(e.target.value)
               onInput(e)
             }}
           />

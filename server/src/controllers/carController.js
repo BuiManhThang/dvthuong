@@ -62,11 +62,34 @@ class CarController extends BaseController {
   }
 
   customValidate = async (req) => {
-    const { name, manufacturer } = req.body
+    const { name, manufacturer, code } = req.body
     const errors = []
-    if (req.method === 'POST') {
-      const foundCar = await this.model.findOne({ name })
-      if (foundCar) {
+    if (req.method === 'POST' || req.method === 'PUT') {
+      const [foundCarWidthCode, foundCarWidthName] = await Promise.all([
+        this.model.findOne({ code }).select({ _id: 1 }),
+        this.model.findOne({ name }).select({ _id: 1 }),
+      ])
+
+      let productId = ''
+
+      if (req.method === 'PUT') {
+        productId = req.params.id
+      }
+
+      if (
+        (foundCarWidthCode && productId === '') ||
+        (foundCarWidthCode && productId !== foundCarWidthCode._id?.toString())
+      ) {
+        errors.push({
+          param: 'name',
+          msg: 'Mã sản phẩm trùng',
+        })
+      }
+
+      if (
+        (foundCarWidthName && productId === '') ||
+        (foundCarWidthName && productId !== foundCarWidthName._id?.toString())
+      ) {
         errors.push({
           param: 'name',
           msg: 'Tên sản phẩm trùng',
@@ -136,6 +159,18 @@ class CarController extends BaseController {
         const key = sortArr[0]
         const direction = sortArr[1]
         sort[key] = parseInt(direction)
+      }
+
+      if (query.searchText) {
+        const myRegex = { $regex: `.*${query.searchText}.*`, $options: 'i' }
+        filter.$or = [
+          {
+            code: myRegex,
+          },
+          {
+            name: myRegex,
+          },
+        ]
       }
 
       const pageIndex = parseInt(query.pageIndex)

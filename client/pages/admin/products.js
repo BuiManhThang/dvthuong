@@ -144,6 +144,7 @@ const ProductsAdmin = () => {
   }
 
   const handleChangeSearchText = (e) => {
+    getPagingProducts(generateQuery({ SearchText: e.target.value }))
     setSearchText(e.target.value)
   }
 
@@ -171,6 +172,7 @@ const ProductsAdmin = () => {
   }
 
   const generateQuery = ({
+    SearchText = null,
     PageSize = null,
     PageIndex = null,
     Manufacturer = null,
@@ -178,9 +180,9 @@ const ProductsAdmin = () => {
   }) => {
     const query = `pageSize=${PageSize || pageSize}&pageIndex=${
       PageIndex || pageIndex
-    }&manufacturer=${Manufacturer === null ? selectedManufacturer : Manufacturer}&sort=${
-      Sort || selectedSortOption
-    }`
+    }&searchText=${SearchText !== null ? SearchText : searchText}&manufacturer=${
+      Manufacturer === null ? selectedManufacturer : Manufacturer
+    }&sort=${Sort || selectedSortOption}`
     return query
   }
 
