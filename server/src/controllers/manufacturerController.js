@@ -28,7 +28,7 @@ class ManufacturerController extends BaseController {
 
       if (
         (foundEntityWidthCode && manufacturerId === '') ||
-        (foundEntityWidthCode && manufacturerId !== foundEntityWidthCode._id?.toString())
+        (foundEntityWidthCode && manufacturerId !== foundEntityWidthCode?._id?.toString())
       ) {
         errors.push({
           param: 'code',
@@ -37,7 +37,7 @@ class ManufacturerController extends BaseController {
       }
       if (
         (foundEntityWidthName && manufacturerId === '') ||
-        (foundEntityWidthName && manufacturerId !== foundEntityWidthName._id?.toString())
+        (foundEntityWidthName && manufacturerId !== foundEntityWidthName?._id?.toString())
       ) {
         errors.push({
           param: 'name',
@@ -100,11 +100,37 @@ class ManufacturerController extends BaseController {
       const pageIndex = parseInt(query.pageIndex)
       const pageSize = parseInt(query.pageSize)
 
-      const limit = (pageIndex - 1) * pageSize + pageSize
+      const limit = pageSize
       const skip = (pageIndex - 1) * pageSize
 
       const [manufacturers, numberManufacturers] = await Promise.all([
-        this.model.find(filter).sort(sort).skip(skip).limit(limit),
+        this.model.aggregate([
+          { $match: filter },
+          {
+            $lookup: {
+              from: 'cars',
+              localField: '_id',
+              foreignField: 'manufacturer',
+              as: 'products',
+            },
+          },
+          {
+            $project: {
+              name: 1,
+              code: 1,
+              numberProducts: { $size: '$products' },
+            },
+          },
+          {
+            $sort: sort,
+          },
+          {
+            $skip: skip,
+          },
+          {
+            $limit: limit,
+          },
+        ]),
         this.model.countDocuments(filter),
       ])
 

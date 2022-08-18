@@ -83,12 +83,21 @@ class BaseController {
 
   delete = async (req, res) => {
     try {
-      const { id } = req.params
-      const foundEntity = await this.model.findOne({ _id: id })
-      if (!foundEntity) {
+      const { id: idListStr } = req.params
+      const idList = idListStr.split(';')
+      const filterList = []
+      const idListCount = idList.length
+      for (let index = 0; index < idListCount; index++) {
+        const id = idList[index]
+        filterList.push({
+          _id: id,
+        })
+      }
+      const foundEntities = await this.model.find({ $or: filterList }).select({ _id: 1 })
+      if (foundEntities.length !== idList.length) {
         return res.sendStatus(404)
       }
-      await this.model.deleteOne({ _id: id })
+      await this.model.deleteMany({ $or: filterList })
       return this.success(res)
     } catch (error) {
       return this.serverError(res, error)
@@ -131,6 +140,15 @@ class BaseController {
       await this.model.updateOne({ _id: id }, foundEntity)
 
       return this.success(res, foundEntity)
+    } catch (error) {
+      return this.serverError(res, error)
+    }
+  }
+
+  getTotal = async (req, res) => {
+    try {
+      const total = await this.model.countDocuments({})
+      return this.success(res, total)
     } catch (error) {
       return this.serverError(res, error)
     }

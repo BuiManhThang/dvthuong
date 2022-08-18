@@ -23,7 +23,7 @@ class CartController extends BaseController {
 
   getByUserId = async (req, res) => {
     try {
-      const cart = await this.model.findOne({ user: req.body.userId }).populate('cars')
+      const cart = await this.model.findOne({ user: req.body.userId }).populate('cars.car')
       if (!cart) {
         return this.notFound(res)
       }

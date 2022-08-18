@@ -46,7 +46,7 @@ export const createUser = [
         })
       }
 
-      const { email, password, confirmPassword, address } = req.body
+      const { email, password, confirmPassword } = req.body
 
       const foundUserByEmail = await User.findOne({ email })
       if (foundUserByEmail) {
@@ -71,16 +71,31 @@ export const createUser = [
         })
       }
 
+      const userList = await User.find().select({ code: 1 }).sort({ code: -1 }).limit(1)
+      let userCode = ''
+      if (userList.length > 0) {
+        const newestUser = userList[0]
+        const newestUserCode = newestUser.code
+
+        const codeArr = newestUserCode.split('.')
+        const codeNumber = parseInt(codeArr[1])
+
+        const newCodeNumber = codeNumber + 1
+        userCode = `U.${newCodeNumber.toString().padStart(4, '0')}`
+      } else {
+        userCode = 'U.0001'
+      }
+
       // encode password
       const salt = await bcrypt.genSalt(10)
       const encodedPassword = await bcrypt.hash(password, salt)
 
       const fullName = email.split('@')[0]
       const newUser = new User({
+        code: userCode,
         fullName,
         email,
         password: encodedPassword,
-        address,
       })
 
       const savedUser = await newUser.save()
@@ -207,7 +222,7 @@ export const getCurrentUser = async (req, res) => {
 
     const { password, ...info } = user.toJSON()
 
-    const cart = await Cart.findOne({ user: info._id })
+    const cart = await Cart.findOne({ user: info._id }).populate('cars.car')
     let products = []
     if (cart) {
       products = cart.cars
@@ -239,6 +254,203 @@ export const signOut = async (req, res) => {
       success: false,
       msg: 'Server error',
       errors: error,
+    })
+  }
+}
+
+export const getTotal = async (req, res) => {
+  try {
+    const total = await User.countDocuments({})
+    return res.json({
+      success: true,
+      data: total,
+    })
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          param: 'server',
+          msg: 'Server Error',
+          value: error,
+        },
+      ],
+    })
+  }
+}
+
+export const update = async (req, res) => {
+  try {
+    const foundedUser = await User.findOne({ _id: req.params.id })
+    if (!foundedUser) {
+      return res.sendStatus(404)
+    }
+
+    foundedUser.fullName = req.body.fullName
+    foundedUser.avatar = req.body.avatar
+    foundedUser.email = req.body.email
+    foundedUser.address = req.body.address
+    foundedUser.phoneNumber = req.body.phoneNumber
+
+    await User.updateOne({ _id: foundedUser._id }, foundedUser)
+
+    const { password, ...info } = foundedUser.toJSON()
+
+    return res.json({
+      data: info,
+    })
+  } catch (error) {
+    return res.status(500).json([
+      {
+        param: 'server',
+        msg: 'Server Error',
+        value: error,
+      },
+    ])
+  }
+}
+
+export const getPaging = async (req, res) => {
+  try {
+    const query = req.query
+    const filter = {}
+    const sort = {}
+    if (query.sort) {
+      const sortArr = query.sort.split('|')
+      const key = sortArr[0]
+      const direction = sortArr[1]
+      sort[key] = parseInt(direction)
+    }
+
+    if (query.status) {
+      filter.status = query.status
+    }
+
+    if (query.searchText) {
+      const myRegex = { $regex: `.*${query.searchText}.*`, $options: 'i' }
+      filter.$or = [
+        {
+          code: myRegex,
+        },
+        {
+          name: myRegex,
+        },
+        {
+          email: myRegex,
+        },
+        {
+          phoneNumber: myRegex,
+        },
+      ]
+    }
+
+    if (!query.pageIndex || !query.pageSize) {
+      const [orders, numberOrders] = await Promise.all([
+        User.find(filter).sort(sort),
+        User.countDocuments(filter),
+      ])
+
+      return this.success(res, {
+        pageData: orders,
+        totalRecords: numberOrders,
+      })
+    }
+
+    const pageIndex = parseInt(query.pageIndex)
+    const pageSize = parseInt(query.pageSize)
+
+    const limit = pageSize
+    const skip = (pageIndex - 1) * pageSize
+
+    const [users, numberUsers] = await Promise.all([
+      // User.find(filter).sort(sort).skip(skip).limit(limit),
+      User.aggregate([
+        {
+          $match: filter,
+        },
+        {
+          $lookup: {
+            from: 'orders',
+            localField: '_id',
+            foreignField: 'user._id',
+            as: 'orders',
+          },
+        },
+        {
+          $addFields: {
+            totalMoney: { $sum: '$orders.totalMoney' },
+            totalOrders: { $size: '$orders' },
+          },
+        },
+        {
+          $sort: sort,
+        },
+        {
+          $skip: skip,
+        },
+        {
+          $limit: limit,
+        },
+      ]),
+      User.countDocuments(filter),
+    ])
+
+    return res.json({
+      success: true,
+      data: {
+        pageData: users,
+        totalRecords: numberUsers,
+      },
+    })
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          param: 'server',
+          msg: 'Server Error',
+          value: error,
+        },
+      ],
+    })
+  }
+}
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { id: idListStr } = req.params
+    const idList = idListStr.split(';')
+    const filterList = []
+    const filterListCart = []
+    const idListCount = idList.length
+    for (let index = 0; index < idListCount; index++) {
+      const id = idList[index]
+      filterList.push({
+        _id: id,
+      })
+      filterListCart.push({
+        user: id,
+      })
+    }
+    const foundEntities = await User.find({ $or: filterList }).select({ _id: 1 })
+    if (foundEntities.length !== idList.length) {
+      return res.sendStatus(404)
+    }
+    await Promise.all([
+      User.deleteMany({ $or: filterList }),
+      Cart.deleteMany({ $or: filterListCart }),
+    ])
+    return res.sendStatus(200)
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      errors: [
+        {
+          param: 'server',
+          msg: 'Server Error',
+          value: error,
+        },
+      ],
     })
   }
 }

@@ -12,6 +12,8 @@ manufacturerRouter.get('/query', manufacturerController.getPaging)
 
 manufacturerRouter.get('/newCode', manufacturerController.getNewCode)
 
+manufacturerRouter.get('/total', manufacturerController.getTotal)
+
 manufacturerRouter.get('/:id', manufacturerController.get)
 
 manufacturerRouter.get('/', manufacturerController.getAll)

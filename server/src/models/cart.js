@@ -5,7 +5,16 @@ const { Schema } = mongoose
 const cartSchema = new Schema(
   {
     user: { type: Schema.Types.ObjectId, ref: 'User' },
-    cars: [{ type: Schema.Types.ObjectId, ref: 'Car' }],
+    cars: [
+      {
+        car: { type: Schema.Types.ObjectId, ref: 'Car' },
+        color: {
+          colorName: { type: String },
+          color: { type: String },
+          image: { type: String },
+        },
+      },
+    ],
   },
   {
     timestamps: true,

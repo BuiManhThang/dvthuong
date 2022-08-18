@@ -39,7 +39,7 @@ class CarController extends BaseController {
 
   getCarsForHome = async (req, res) => {
     try {
-      const manufacturers = await this.manufacturer.find()
+      const manufacturers = await this.manufacturer.find().limit(3)
       const result = []
 
       const manufacturersLength = manufacturers.length
@@ -50,12 +50,17 @@ class CarController extends BaseController {
           name: mnu.name,
           products: [],
         }
-        const products = await this.model.find({ manufacturer: mnu._id })
+        const products = await this.model.find({ manufacturer: mnu._id }).limit(4)
         item.products = [...products]
         result.push(item)
       }
 
-      return this.success(res, result)
+      const newestProducts = await this.model.find({}).sort({ createdAt: -1 }).limit(16)
+
+      return this.success(res, {
+        newestProducts,
+        productByManufacturer: result,
+      })
     } catch (error) {
       this.serverError(res, error)
     }
@@ -78,7 +83,7 @@ class CarController extends BaseController {
 
       if (
         (foundCarWidthCode && productId === '') ||
-        (foundCarWidthCode && productId !== foundCarWidthCode._id?.toString())
+        (foundCarWidthCode && productId !== foundCarWidthCode?._id?.toString())
       ) {
         errors.push({
           param: 'name',
@@ -88,7 +93,7 @@ class CarController extends BaseController {
 
       if (
         (foundCarWidthName && productId === '') ||
-        (foundCarWidthName && productId !== foundCarWidthName._id?.toString())
+        (foundCarWidthName && productId !== foundCarWidthName?._id?.toString())
       ) {
         errors.push({
           param: 'name',
@@ -173,10 +178,22 @@ class CarController extends BaseController {
         ]
       }
 
+      if (!query.pageIndex || !query.pageSize) {
+        const [cars, numberCars] = await Promise.all([
+          this.model.find(filter).populate('manufacturer').sort(sort),
+          this.model.countDocuments(filter),
+        ])
+
+        return this.success(res, {
+          pageData: cars,
+          totalRecords: numberCars,
+        })
+      }
+
       const pageIndex = parseInt(query.pageIndex)
       const pageSize = parseInt(query.pageSize)
 
-      const limit = (pageIndex - 1) * pageSize + pageSize
+      const limit = pageSize
       const skip = (pageIndex - 1) * pageSize
 
       const [cars, numberCars] = await Promise.all([
