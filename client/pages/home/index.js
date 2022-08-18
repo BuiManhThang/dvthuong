@@ -191,7 +191,7 @@ const HomePage = () => {
         <div className="container mx-auto grid grid-cols-2 gap-x-6">
           {EDITOR_PICK.map((image, idx) => {
             return (
-              <div className="group relative h-[400px] w-full overflow-hidden">
+              <div key={idx} className="group relative h-[400px] w-full overflow-hidden">
                 <div className="absolute z-[1] top-0 left-0 w-full h-full bg-black/30"></div>
                 <div className="absolute z-[3] top-0 left-0 w-full h-full">
                   <div className="text-2xl font-medium absolute top-6 left-6">
