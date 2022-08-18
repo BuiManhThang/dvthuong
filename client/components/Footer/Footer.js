@@ -33,11 +33,8 @@ const Footer = () => {
             Về chúng tôi
           </h3>
           <div className="text-gray-400 text-justify mb-5 text-sm">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eveniet fugit cum, dolores
-            consequatur exercitationem vero officiis quidem laboriosam ea. Eaque cum molestiae
-            ducimus eius eveniet. Ex ipsam similique temporibus dignissimos aperiam, esse voluptatum
-            laudantium laboriosam a nisi odio alias recusandae, nihil eligendi sequi voluptate
-            adipisci, et illo. Aliquid, similique ad.
+            Công ty CP Việt Hưng tự hào là một trong những doanh nghiệp có sự phát triển vượt bậc trong năm 2021. Đồng thời cũng là
+            một trong những công ty đi đầu cả nước về xe thân thiện với môi trường.
           </div>
           <ul className="flex text-gray-400 text-lg gap-x-3">
             <li className="cursor-pointer hover:text-primary transition-colors duration-300">
@@ -60,15 +57,12 @@ const Footer = () => {
             Liên hệ với chúng tôi
           </h3>
           <div className="text-gray-400 text-justify mb-5 text-sm">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eveniet fugit cum, dolores
-            consequatur exercitationem vero officiis quidem laboriosam ea. Eaque cum molestiae
-            ducimus eius eveniet. Ex ipsam similique temporibus dignissimos aperiam, esse voluptatum
-            laudantium laboriosam a nisi odio alias recusandae, nihil eligendi sequi voluptate
-            adipisci, et illo. Aliquid, similique ad.
+            Hiện tại trụ sở chính của công ty đang nằm tại Cầu Giấy, Hà Nội. Quý khách hàng có thể ghé thăm để 
+            lựa chọn những mẫu xe và trải nghiệm dịch vụ bên công ty cung cấp.
           </div>
           <div>
             <h4 className="text-lg font-medium text-primary mb-2">Địa chỉ:</h4>
-            <div className="text-gray-400 text-justify mb-5 text-sm">32 Bắc Từ Niêm, Hà Nội</div>
+            <div className="text-gray-400 text-justify mb-5 text-sm">370Đ Cầu Giấy Hà Nội</div>
           </div>
           <div>
             <h4 className="text-lg font-medium text-primary mb-2">Thông tin liên lạc:</h4>

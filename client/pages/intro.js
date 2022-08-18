@@ -34,12 +34,11 @@ const IntroPage = () => {
       </Head>
       <main className="container mx-auto px-6 ms:px-0">
         <h1 className="mt-10 mb-8 text-justify text-xl font-medium lg:text-3xl lg:text-center">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis aliquam velit, libero atque
-          quae ipsam odio consequuntur iure? Cumque voluptate magnam quaerat mollitia repellat,
-          sapiente tempore sit nobis, provident qu
+          Công ty CP Việt Hưng
         </h1>
         <div className="relative w-full h-[300px] mb-8 lg:h-[500px] rounded-md overflow-hidden">
-          <Image className="object-center object-cover" src={Img} layout="fill" />
+          <Image className="object-right object-cover" src={Img} layout="fill" />
+          <Image className="object-left object-cover" src={Img} layout="fill" />
         </div>
         <h2 className="font-bold text-2xl text-center mb-8 relative before:absolute before:top-[calc(100%_+_4px)] before:left-1/2 before:-translate-x-1/2 before:w-36 before:h-1 before:bg-primary">
           Tiêu chí phát triển
