@@ -4,16 +4,37 @@ import Link from 'next/link'
 import { convertPrice } from '../../js/commonFn'
 import { useCart } from '../../hooks/cartHook'
 import Img from '../../assets/images/sign-in-background.jpg'
+import { useAccount } from '../../hooks/accountHook'
+import { useDispatch } from 'react-redux'
+import { openToastMsg } from '../../slices/toastMsgSlice'
+import { ToastMsgStatus } from '../../enums/ToastMsgEnum'
 
 const ProductCard = ({ name, image, price, _id, colors }) => {
   const formattedPrice = convertPrice(price)
   const url = `/products/${_id}`
 
+  const { accountInfo } = useAccount()
   const { addProduct } = useCart()
+  const dispatch = useDispatch()
 
   const addToCart = (e) => {
     e.preventDefault()
+    if (!accountInfo?._id) {
+      dispatch(
+        openToastMsg({
+          msg: 'Bạn cần đăng nhập để có thể mua hàng',
+          status: ToastMsgStatus.Info,
+        })
+      )
+      return
+    }
     addProduct(_id, colors[0])
+    dispatch(
+      openToastMsg({
+        msg: 'Thêm thành công sản phẩm vào giỏ hàng',
+        status: ToastMsgStatus.Success,
+      })
+    )
   }
 
   return (

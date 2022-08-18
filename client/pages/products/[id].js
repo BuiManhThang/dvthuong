@@ -10,6 +10,10 @@ import Rating from '../../components/Rating/Rating'
 import { convertPrice, numberWithCommas } from '../../js/commonFn'
 import { useRouter } from 'next/router'
 import { useCart } from '../../hooks/cartHook'
+import { useAccount } from '../../hooks/accountHook'
+import { useDispatch } from 'react-redux'
+import { openToastMsg } from '../../slices/toastMsgSlice'
+import { ToastMsgStatus } from '../../enums/ToastMsgEnum'
 
 const convertDetailProduct = (productData) => {
   if (!productData) {
@@ -97,8 +101,9 @@ const ProductDetail = () => {
   const [relatedProducts, setRelatedProduct] = useState([])
   const [formattedColorList, setFormattedColorList] = useState([])
 
+  const { accountInfo } = useAccount()
   const { addProduct } = useCart()
-
+  const dispatch = useDispatch()
   const router = useRouter()
 
   const formattedproductDetail = convertDetailProduct(productDetail)
@@ -164,7 +169,22 @@ const ProductDetail = () => {
   }, [router.query.id])
 
   const addToCart = () => {
+    if (!accountInfo?._id) {
+      dispatch(
+        openToastMsg({
+          msg: 'Bạn cần đăng nhập để có thể mua hàng',
+          status: ToastMsgStatus.Info,
+        })
+      )
+      return
+    }
     addProduct(productDetail._id, productDetail.colors[selectedColor])
+    dispatch(
+      openToastMsg({
+        msg: 'Thêm thành công sản phẩm vào giỏ hàng',
+        status: ToastMsgStatus.Success,
+      })
+    )
   }
 
   return (

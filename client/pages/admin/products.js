@@ -173,13 +173,13 @@ const ProductsAdmin = () => {
   }
 
   const handleChangeManufacturer = (e) => {
-    getPagingProducts(generateQuery({ Manufacturer: e }))
+    getPagingProducts(generateQuery({ Manufacturer: e, PageIndex: 1 }))
     setPageIndex(1)
     setSelectedManufacturer(e)
   }
 
   const handleChangeSort = (e) => {
-    getPagingProducts(generateQuery({ Sort: e }))
+    getPagingProducts(generateQuery({ Sort: e, PageIndex: 1 }))
     setPageIndex(1)
     setSelectedSortOption(e)
   }
@@ -192,7 +192,7 @@ const ProductsAdmin = () => {
   const handleChangePageSize = (newPageSize) => {
     setPageSize(newPageSize)
     setPageIndex(1)
-    getPagingProducts(generateQuery({ PageSize: newPageSize }))
+    getPagingProducts(generateQuery({ PageSize: newPageSize, PageIndex: 1 }))
   }
 
   const generateQuery = ({

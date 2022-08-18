@@ -231,7 +231,8 @@ const Dashboard = () => {
       setTotalCars(totalProductsRes.data.data)
       setTotalUsers(totalUsersRes.data.data)
       setTotalManufacturers(totalManufacturersRes.data.data)
-      let totalRevenue = totalRevenueRes.data.data[0].totalRevenue
+      let totalRevenue =
+        totalRevenueRes.data.data.length > 0 ? totalRevenueRes.data.data[0].totalRevenue : 0
       let mark = 'VNĐ'
       if (totalRevenue >= 1000000000) {
         totalRevenue = (totalRevenue / 1000000000).toFixed(1)
@@ -267,6 +268,7 @@ const Dashboard = () => {
         ],
       })
     } catch (error) {
+      console.log(error)
       dispatch(
         openToastMsg({
           msg: 'Có lỗi xảy ra',

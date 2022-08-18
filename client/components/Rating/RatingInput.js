@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import InputField from '../InputField/InputField'
 import PopupMsg from '../Popup/PopupMsg'
+import Link from 'next/link'
 
 import baseApi from '../../api/BaseApi'
 import { useAccount } from '../../hooks/accountHook'
@@ -94,7 +95,15 @@ const RatingInput = ({ product, onSendReview = () => {} }) => {
   const { accountInfo } = useAccount()
 
   if (!accountInfo?._id) {
-    return <div className="bg-gray-50 rounded-md">Hãy đăng nhập đề đánh giá sản phẩm</div>
+    return (
+      <div className="bg-gray-50 rounded-md text-center">
+        Hãy{' '}
+        <Link href="/sign-in">
+          <a className="text-primary">đăng nhập</a>
+        </Link>{' '}
+        đề đánh giá sản phẩm
+      </div>
+    )
   }
 
   return (

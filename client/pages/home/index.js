@@ -171,7 +171,7 @@ const HomePage = () => {
               <h3 className="text-xl font-bold mb-4 flex items-end justify-between">
                 {productGroup.name}
                 <div className="relative group flex items-center ml-3 text-sm text-primary">
-                  <Link href={productGroup.name}>
+                  <Link href={`/products?m=${productGroup._id}`}>
                     <a className="transition-all group-hover:underline">Xem tất cả</a>
                   </Link>
                   <div className="text-sm pl-1 flex items-center -translate-x-1 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-200">

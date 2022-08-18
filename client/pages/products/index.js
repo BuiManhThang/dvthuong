@@ -11,6 +11,7 @@ import { TypeStyle } from '../../enums/InputFieldEnum'
 import { ComboboxLabelPositionEnum } from '../../enums/ComboboxEnum'
 import { useDispatch, useSelector } from 'react-redux'
 import { triggerScrollTop } from '../../slices/scrollSlice'
+import { useRouter } from 'next/router'
 
 const SORT_OPTIONS = [
   {
@@ -56,6 +57,7 @@ const Products = () => {
 
   const scrollVal = useSelector((state) => state.scroll.scrollVal)
 
+  const router = useRouter()
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -85,13 +87,13 @@ const Products = () => {
   }
 
   const handleChangeManufacturer = (e) => {
-    getPaging(generateQuery({ Manufacturer: e }))
+    getPaging(generateQuery({ Manufacturer: e, PageIndex: 1 }))
     setPageIndex(1)
     setSelectedManufacturer(e)
   }
 
   const handleChangeSort = (e) => {
-    getPaging(generateQuery({ Sort: e }))
+    getPaging(generateQuery({ Sort: e, PageIndex: 1 }))
     setPageIndex(1)
     setSelectedSortOption(e)
   }
@@ -104,12 +106,21 @@ const Products = () => {
   const handleChangePageSize = (newPageSize) => {
     setPageSize(newPageSize)
     setPageIndex(1)
-    getPaging(generateQuery({ PageSize: newPageSize }))
+    getPaging(generateQuery({ PageSize: newPageSize, PageIndex: 1 }))
   }
 
   const getInitData = async () => {
+    const query = router.query
+    const apiQuery = {
+      PageIndex: 1,
+    }
+    if (query.m) {
+      setSelectedManufacturer(query.m)
+      apiQuery.Manufacturer = query.m
+    }
+
     try {
-      getPaging(generateQuery({ PageIndex: 1 }))
+      getPaging(generateQuery(apiQuery))
       const res = await baseApi.get('manufacturers')
       setManufacturers([
         {
@@ -183,7 +194,7 @@ const Products = () => {
               <InputField
                 id="search-text"
                 name="search-text"
-                placeholder="Tìm kiếm theo tên sản phẩm, tên nhà cung cấp..."
+                placeholder="Tìm kiếm theo tên sản phẩm ..."
                 typeStyle={TypeStyle.Normal}
                 startIcon={
                   <div>

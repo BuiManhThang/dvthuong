@@ -108,7 +108,7 @@ const ManufacturersAdmin = () => {
   }
 
   const handleChangeSort = (e) => {
-    getPagingManufacturers(generateQuery({ Sort: e }))
+    getPagingManufacturers(generateQuery({ Sort: e, PageIndex: 1 }))
     setPageIndex(1)
     setSelectedSortOption(e)
   }
@@ -121,7 +121,7 @@ const ManufacturersAdmin = () => {
   const handleChangePageSize = (newPageSize) => {
     setPageSize(newPageSize)
     setPageIndex(1)
-    getPagingManufacturers(generateQuery({ PageSize: newPageSize }))
+    getPagingManufacturers(generateQuery({ PageSize: newPageSize, PageIndex: 1 }))
   }
 
   const getPagingManufacturers = async (query = '') => {

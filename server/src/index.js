@@ -17,7 +17,7 @@ import reviewRouter from './routers/reviewRouter.js'
 
 dotenv.config()
 const PORT = process.env.PORT || 3000
-const MONGODB_URL = process.env.MONGODB_URL_LOCAL
+const MONGODB_URL = process.env.MONGODB_URL
 
 const app = express()
 

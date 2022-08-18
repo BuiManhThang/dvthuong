@@ -168,7 +168,7 @@ const UsersAdmin = () => {
   }
 
   const handleChangeSort = (e) => {
-    getPaging(generateQuery({ Sort: e }))
+    getPaging(generateQuery({ Sort: e, PageIndex: 1 }))
     setPageIndex(1)
     setSelectedSortOption(e)
   }
@@ -181,7 +181,7 @@ const UsersAdmin = () => {
   const handleChangePageSize = (newPageSize) => {
     setPageSize(newPageSize)
     setPageIndex(1)
-    getPaging(generateQuery({ PageSize: newPageSize }))
+    getPaging(generateQuery({ PageSize: newPageSize, PageIndex: 1 }))
   }
 
   const handleClosePopupDetail = (isReload = false) => {
