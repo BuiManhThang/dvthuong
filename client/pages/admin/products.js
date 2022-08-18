@@ -2,14 +2,20 @@ import React, { useEffect, useState } from 'react'
 import baseApi from '../../api/BaseApi'
 import { DataTypeEnum } from '../../enums/DataTypeEnum'
 import { ComboboxLabelPositionEnum } from '../../enums/ComboboxEnum'
+import { ButtonType } from '../../enums/ButtomEnum'
+import { TypeStyle } from '../../enums/InputFieldEnum'
 
 import Head from 'next/head'
 import Button from '../../components/Button/Button'
 import ProductInfoPopup from '../../components/ProductPopup/ProductInfoPopup'
 import Table from '../../components/Table/Table'
-import InputField, { TypeStyle } from '../../components/InputField/InputField'
+import InputField from '../../components/InputField/InputField'
 import Combobox from '../../components/Combobox/Combobox'
 import Paging from '../../components/Paging/Paging'
+import PopupMsg from '../../components/Popup/PopupMsg'
+import { useDispatch } from 'react-redux'
+import { openToastMsg } from '../../slices/toastMsgSlice'
+import { ToastMsgStatus } from '../../enums/ToastMsgEnum'
 
 const HEADERS = [
   {
@@ -18,6 +24,9 @@ const HEADERS = [
     dataType: DataTypeEnum.Text,
     width: '140px',
     minWidth: '140px',
+    sticky: {
+      left: '48px',
+    },
   },
   {
     caption: 'Tên sản phẩm',
@@ -94,6 +103,9 @@ const SORT_OPTIONS = [
 
 const ProductsAdmin = () => {
   const [isActivePopupAdd, setIsActivePopupAdd] = useState(false)
+  const [isActivePopupDelete, setIsActivePopupDelete] = useState(false)
+  const [isLoadingPopupDelete, setIsLoadingPopupDelete] = useState(false)
+  const [deletedProductId, setDeletedProductId] = useState('')
   const [products, setProducts] = useState([])
   const [manufacturers, setManufacturers] = useState([])
   const [isLoading, setIsLoading] = useState(false)
@@ -103,18 +115,25 @@ const ProductsAdmin = () => {
   const [selectedManufacturer, setSelectedManufacturer] = useState('')
   const [selectedSortOption, setSelectedSortOption] = useState('code|1')
   const [pageIndex, setPageIndex] = useState(1)
-  const [pageSize, setPageSize] = useState('30')
+  const [pageSize, setPageSize] = useState('20')
   const [totalRecords, setTotalRecords] = useState(0)
+  const [searchFunc, setSearchFunc] = useState(null)
+
+  const dispatch = useDispatch()
 
   useEffect(() => {
     getProducts()
+
+    return () => {
+      clearTimeout(searchFunc)
+    }
   }, [])
 
   const getProducts = async () => {
     setIsLoading(true)
     try {
       const [_, resManufacturer] = await Promise.all([
-        getPagingProducts(generateQuery({ PageIndex: 1 })),
+        getPagingProducts(generateQuery({ PageIndex: null })),
         baseApi.get('manufacturers'),
       ])
 
@@ -134,18 +153,23 @@ const ProductsAdmin = () => {
   }
 
   const handleEditRow = (productId) => {
-    console.log(productId)
     setEdittingProductId(productId)
     setIsActivePopupAdd(true)
   }
 
   const handleDeleteRow = (productId) => {
-    console.log(productId)
+    setDeletedProductId(productId)
+    setIsActivePopupDelete(true)
   }
 
   const handleChangeSearchText = (e) => {
-    getPagingProducts(generateQuery({ SearchText: e.target.value }))
     setSearchText(e.target.value)
+    clearTimeout(searchFunc)
+    setSearchFunc(
+      setTimeout(() => {
+        getPagingProducts(generateQuery({ SearchText: e.target.value }))
+      }, 500)
+    )
   }
 
   const handleChangeManufacturer = (e) => {
@@ -192,6 +216,9 @@ const ProductsAdmin = () => {
       const resProduct = await baseApi.get(`/cars/query?${query}`)
       setProducts([...resProduct.data.data.pageData])
       setTotalRecords(resProduct.data.data.totalRecords)
+      setSelectedRows([])
+      setDeletedProductId('')
+      setEdittingProductId('')
 
       setIsLoading(false)
     } catch (error) {
@@ -203,8 +230,71 @@ const ProductsAdmin = () => {
   const handleClosePopup = (isReload = false) => {
     setIsActivePopupAdd(false)
     setEdittingProductId('')
-    if (isReload) {
-      getPagingProducts(generateQuery({ PageIndex: 1 }))
+    if (isReload === true) {
+      getPagingProducts(generateQuery({ PageIndex: null }))
+    }
+  }
+
+  const handleClickDeleteMultiple = () => {
+    if (selectedRows.length === 0) {
+      return
+    }
+    if (selectedRows.length === 1) {
+      setDeletedProductId(selectedRows[0])
+    }
+    setIsActivePopupDelete(true)
+  }
+
+  const handleClosePopupDelete = () => {
+    setIsActivePopupDelete(false)
+    setDeletedProductId('')
+  }
+
+  const handleDeleteProducts = async () => {
+    setIsLoadingPopupDelete(true)
+    try {
+      let res = null
+      let msg = ''
+      if (deletedProductId !== '') {
+        res = await baseApi.delete(`/cars/${deletedProductId}`)
+        msg = 'Xóa thành công 1 sản phẩm'
+        const deletedProduct = products.find((p) => p._id === deletedProductId)
+        if (deletedProduct) {
+          msg = `Xóa thành công sản phẩm có mã <${deletedProduct.code}>`
+        }
+      } else {
+        const idList = selectedRows.join(';')
+        res = await baseApi.delete(`/cars/${idList}`)
+        msg = `Xóa thành công ${selectedRows.length} sản phẩm`
+      }
+      dispatch(
+        openToastMsg({
+          status: ToastMsgStatus.Success,
+          msg,
+        })
+      )
+      setIsLoadingPopupDelete(false)
+      setIsActivePopupDelete(false)
+      getPagingProducts(generateQuery({ PageIndex: null }))
+    } catch (error) {
+      setIsLoadingPopupDelete(false)
+      setIsActivePopupDelete(false)
+      if (error.response.status === 404) {
+        dispatch(
+          openToastMsg({
+            status: ToastMsgStatus.Error,
+            msg: 'Dữ liệu đã bị thay đổi hãy tải lại trang',
+          })
+        )
+        return
+      }
+      dispatch(
+        openToastMsg({
+          status: ToastMsgStatus.Error,
+          msg: 'Có lỗi xảy ra',
+        })
+      )
+      console.log(error)
     }
   }
 
@@ -270,6 +360,20 @@ const ProductsAdmin = () => {
               </span>
               <span className="leading-none">Thêm sản phẩm</span>
             </Button>
+            <Button
+              style={{
+                height: '40px',
+                width: '40px',
+                minWidth: 'unset',
+              }}
+              className="hover:text-red-600 group"
+              buttonType={ButtonType.Secondary}
+              onClick={handleClickDeleteMultiple}
+            >
+              <div className="flex items-center justify-center group-hover:text-red-600">
+                <i className="fa-solid fa-trash"></i>
+              </div>
+            </Button>
           </div>
         </div>
         <div className="mt-6">
@@ -302,6 +406,34 @@ const ProductsAdmin = () => {
         isActive={isActivePopupAdd}
         edittingProductId={edittingProductId}
         onClose={handleClosePopup}
+      />
+
+      <PopupMsg
+        isActive={isActivePopupDelete}
+        isLoading={isLoadingPopupDelete}
+        title="Xác nhận"
+        textCloseBtn="Hủy"
+        textAgreeBtn="Đồng ý"
+        msg={
+          <div>
+            {selectedRows.length > 1 ? (
+              <div>
+                <span>Bạn có chắc muốn xóa </span>
+                <span className="font-medium">{selectedRows.length} </span>
+                <span>sản phẩm?</span>
+              </div>
+            ) : deletedProductId !== '' ? (
+              <div>
+                <span>Bạn có chắc muốn xóa sản phẩm có mã </span>
+                <span className="font-medium">
+                  {products.find((p) => p._id === deletedProductId)?.code}
+                </span>
+              </div>
+            ) : null}
+          </div>
+        }
+        onClose={handleClosePopupDelete}
+        onAgree={handleDeleteProducts}
       />
     </div>
   )

@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { ButtonType } from '../Button/Button'
-import { TypeStyle } from '../InputField/InputField'
+import { ButtonType } from '../../enums/ButtomEnum'
+import { TypeStyle } from '../../enums/InputFieldEnum'
 import { useValidate } from '../../hooks/validationHook'
 import { openToastMsg } from '../../slices/toastMsgSlice'
 import { ToastMsgStatus } from '../../enums/ToastMsgEnum'
 import baseApi from '../../api/BaseApi'
 
 import Popup from '../Popup/Popup'
+import PopupMsg from '../Popup/PopupMsg'
 import InputField from '../InputField/InputField'
 import Button from '../Button/Button'
 import Combobox from '../Combobox/Combobox'
@@ -146,6 +147,8 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
   })
 
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingConfirmPopup, setIsLoadingConfirmPopup] = useState(false)
+  const [isActiveConfirmPopup, setIsActiveConfirmPopup] = useState(false)
   const [isFirstValidate, setIsFirstValidate] = useState(true)
   const [manufacturerList, setManufacturerList] = useState([])
 
@@ -220,42 +223,51 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
   }, [productData])
 
   const handleSaveProduct = async (e) => {
-    e.preventDefault()
-    setIsFirstValidate(false)
-    if (validate(productData)) {
-      setIsLoading(true)
-      try {
-        let res = null
-        if (edittingProductId) {
-          res = await baseApi.put(`/cars/${edittingProductId}`, productData)
-        } else {
-          res = await baseApi.post('cars', productData)
-        }
-        if (res.data.success) {
-          setIsLoading(false)
-          dispatch(
-            openToastMsg({
-              status: ToastMsgStatus.Success,
-              msg: `Lưu thành công thông tin sản phẩm với mã <${productData.code}>`,
-            })
-          )
-          onClose(true)
-        }
-      } catch (error) {
-        setIsLoading(false)
-        if (error.response.status === 400) {
-          setServerErrors(error.response.data.errors)
-        } else {
-          console.log(error)
-          dispatch(
-            openToastMsg({
-              status: ToastMsgStatus.Error,
-              msg: 'Có lỗi xảy ra',
-            })
-          )
-        }
+    setIsLoadingConfirmPopup(true)
+    try {
+      let res = null
+      if (edittingProductId) {
+        res = await baseApi.put(`/cars/${edittingProductId}`, productData)
+      } else {
+        res = await baseApi.post('cars', productData)
+      }
+      if (res.data.success) {
+        setIsLoadingConfirmPopup(false)
+        dispatch(
+          openToastMsg({
+            status: ToastMsgStatus.Success,
+            msg: `Lưu thành công thông tin sản phẩm với mã <${productData.code}>`,
+          })
+        )
+        handleCloseConfirmPopup()
+        onClose(true)
+      }
+    } catch (error) {
+      setIsLoadingConfirmPopup(false)
+      handleCloseConfirmPopup()
+      if (error.response.status === 400) {
+        setServerErrors(error.response.data.errors)
+      } else {
+        console.log(error)
+        dispatch(
+          openToastMsg({
+            status: ToastMsgStatus.Error,
+            msg: 'Có lỗi xảy ra',
+          })
+        )
       }
     }
+  }
+
+  const handleOpenConfirmPopup = () => {
+    setIsFirstValidate(false)
+    if (validate(productData)) {
+      setIsActiveConfirmPopup(true)
+    }
+  }
+
+  const handleCloseConfirmPopup = () => {
+    setIsActiveConfirmPopup(false)
   }
 
   return (
@@ -272,10 +284,7 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
               borderRadius: 6,
             }}
             buttonType={ButtonType.Secondary}
-            onClick={(e) => {
-              e.preventDefault()
-              onClose()
-            }}
+            onClick={onClose}
           >
             Hủy
           </Button>
@@ -285,7 +294,7 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
               height: 44,
               borderRadius: 6,
             }}
-            onClick={handleSaveProduct}
+            onClick={handleOpenConfirmPopup}
           >
             Lưu
           </Button>
@@ -318,10 +327,10 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 value={productData.name}
                 error={errors.name}
                 onInput={(e) =>
-                  setProductData({
-                    ...productData,
+                  setProductData((prev) => ({
+                    ...prev,
                     name: e.target.value,
-                  })
+                  }))
                 }
                 isAutoFocus={true}
               />
@@ -339,10 +348,10 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 value={productData.manufacturer}
                 error={errors.manufacturer}
                 onChange={(e) =>
-                  setProductData({
-                    ...productData,
+                  setProductData((prev) => ({
+                    ...prev,
                     manufacturer: e,
-                  })
+                  }))
                 }
               />
             </div>
@@ -355,10 +364,10 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 value={productData.price}
                 error={errors.price}
                 onInput={(e) =>
-                  setProductData({
-                    ...productData,
+                  setProductData((prev) => ({
+                    ...prev,
                     price: e,
-                  })
+                  }))
                 }
               />
             </div>
@@ -374,10 +383,10 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 value={productData.number}
                 error={errors.number}
                 onInput={(e) =>
-                  setProductData({
-                    ...productData,
+                  setProductData((prev) => ({
+                    ...prev,
                     number: e,
-                  })
+                  }))
                 }
               />
             </div>
@@ -390,10 +399,10 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 value={productData.cylinderCapacity}
                 error={errors.cylinderCapacity}
                 onInput={(e) =>
-                  setProductData({
-                    ...productData,
+                  setProductData((prev) => ({
+                    ...prev,
                     cylinderCapacity: e,
-                  })
+                  }))
                 }
               />
             </div>
@@ -406,10 +415,10 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 value={productData.fuelCapacity}
                 error={errors.fuelCapacity}
                 onInput={(e) =>
-                  setProductData({
-                    ...productData,
+                  setProductData((prev) => ({
+                    ...prev,
                     fuelCapacity: e,
-                  })
+                  }))
                 }
               />
             </div>
@@ -422,10 +431,10 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 value={productData.consumption}
                 error={errors.consumption}
                 onInput={(e) =>
-                  setProductData({
-                    ...productData,
+                  setProductData((prev) => ({
+                    ...prev,
                     consumption: e,
-                  })
+                  }))
                 }
               />
             </div>
@@ -441,13 +450,13 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 value={productData.size.length}
                 error={errors.length}
                 onInput={(e) =>
-                  setProductData({
-                    ...productData,
+                  setProductData((prev) => ({
+                    ...prev,
                     size: {
-                      ...productData.size,
+                      ...prev.size,
                       length: e,
                     },
-                  })
+                  }))
                 }
               />
             </div>
@@ -460,13 +469,13 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 value={productData.size.width}
                 error={errors.width}
                 onInput={(e) =>
-                  setProductData({
-                    ...productData,
+                  setProductData((prev) => ({
+                    ...prev,
                     size: {
-                      ...productData.size,
+                      ...prev.size,
                       width: e,
                     },
-                  })
+                  }))
                 }
               />
             </div>
@@ -479,13 +488,13 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 value={productData.size.height}
                 error={errors.height}
                 onInput={(e) =>
-                  setProductData({
-                    ...productData,
+                  setProductData((prev) => ({
+                    ...prev,
                     size: {
-                      ...productData.size,
+                      ...prev.size,
                       height: e,
                     },
-                  })
+                  }))
                 }
               />
             </div>
@@ -503,10 +512,10 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 value={productData.image}
                 error={errors.image}
                 onChange={(e) =>
-                  setProductData({
-                    ...productData,
+                  setProductData((prev) => ({
+                    ...prev,
                     image: e,
-                  })
+                  }))
                 }
               />
             </div>
@@ -519,10 +528,10 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 height={384}
                 error={errors.colors}
                 onChange={(e) =>
-                  setProductData({
-                    ...productData,
+                  setProductData((prev) => ({
+                    ...prev,
                     colors: e,
-                  })
+                  }))
                 }
               />
             </div>
@@ -584,13 +593,13 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 value={productData.detail.numberOfSeats}
                 error={errors.numberOfSeats}
                 onInput={(e) =>
-                  setProductData({
-                    ...productData,
+                  setProductData((prev) => ({
+                    ...prev,
                     detail: {
-                      ...productData.detail,
+                      ...prev.detail,
                       numberOfSeats: e,
                     },
-                  })
+                  }))
                 }
               />
             </div>
@@ -603,13 +612,13 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 value={productData.detail.weight}
                 error={errors.weight}
                 onInput={(e) =>
-                  setProductData({
-                    ...productData,
+                  setProductData((prev) => ({
+                    ...prev,
                     detail: {
-                      ...productData.detail,
+                      ...prev.detail,
                       weight: e,
                     },
-                  })
+                  }))
                 }
               />
             </div>
@@ -622,13 +631,13 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 items={BRAKE_OPTIONS}
                 value={productData.detail.frontBrake}
                 onChange={(e) =>
-                  setProductData({
-                    ...productData,
+                  setProductData((prev) => ({
+                    ...prev,
                     detail: {
-                      ...productData.detail,
+                      ...prev.detail,
                       frontBrake: e,
                     },
-                  })
+                  }))
                 }
               />
             </div>
@@ -640,13 +649,13 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 items={BRAKE_OPTIONS}
                 value={productData.detail.backBrake}
                 onChange={(e) =>
-                  setProductData({
-                    ...productData,
+                  setProductData((prev) => ({
+                    ...prev,
                     detail: {
-                      ...productData.detail,
+                      ...prev.detail,
                       backBrake: e,
                     },
-                  })
+                  }))
                 }
               />
             </div>
@@ -661,13 +670,13 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 items={TRUE_FALSE_OPTIONS}
                 value={productData.detail.powerSupport}
                 onChange={(e) =>
-                  setProductData({
-                    ...productData,
+                  setProductData((prev) => ({
+                    ...prev,
                     detail: {
-                      ...productData.detail,
+                      ...prev.detail,
                       powerSupport: e,
                     },
-                  })
+                  }))
                 }
               />
             </div>
@@ -679,13 +688,13 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 items={TRUE_FALSE_OPTIONS}
                 value={productData.detail.eco}
                 onChange={(e) =>
-                  setProductData({
-                    ...productData,
+                  setProductData((prev) => ({
+                    ...prev,
                     detail: {
-                      ...productData.detail,
+                      ...prev.detail,
                       eco: e,
                     },
-                  })
+                  }))
                 }
               />
             </div>
@@ -697,13 +706,13 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 items={TRUE_FALSE_OPTIONS}
                 value={productData.detail.warningSystem}
                 onChange={(e) =>
-                  setProductData({
-                    ...productData,
+                  setProductData((prev) => ({
+                    ...prev,
                     detail: {
-                      ...productData.detail,
+                      ...prev.detail,
                       warningSystem: e,
                     },
-                  })
+                  }))
                 }
               />
             </div>
@@ -717,14 +726,31 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
               value={productData.gallery}
               isMultiple
               onChange={(e) =>
-                setProductData({
-                  ...productData,
+                setProductData((prev) => ({
+                  ...prev,
                   gallery: e,
-                })
+                }))
               }
             />
           </div>
         </div>
+
+        <PopupMsg
+          isActive={isActiveConfirmPopup}
+          isLoading={isLoadingConfirmPopup}
+          isActiveLoadingScreen={false}
+          title="Xác nhận"
+          msg={
+            <div>
+              <span>Bạn có chắc chắn muốn lưu thông tin sản phẩn với mã </span>
+              <span className="font-medium">{productData.code}</span>?
+            </div>
+          }
+          textAgreeBtn="Đồng ý"
+          textCloseBtn="Hủy"
+          onClose={handleCloseConfirmPopup}
+          onAgree={handleSaveProduct}
+        />
       </div>
     </Popup>
   )

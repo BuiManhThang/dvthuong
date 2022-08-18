@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
-import styles from '../../styles/SignIn.module.scss'
 import InputField from '../../components/InputField/InputField'
 import PasswordField from '../../components/PasswordField/PasswordField'
 import Button from '../../components/Button/Button'
+import Image from 'next/image'
 import { useAccount } from '../../hooks/accountHook'
 import { validateEmail, validateEmpty } from '../../js/commonFn'
+
+import ImgBackground from '../../assets/images/sign-in-background.jpg'
 
 const SignIn = () => {
   const [email, setEmail] = useState('')
@@ -62,37 +64,34 @@ const SignIn = () => {
   }
 
   return (
-    <div className={styles['sign-in']}>
+    <div className="flex w-full h-screen">
       <Head>
         <title>Đăng Nhập</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles['main']}>
-        <Link href="/">
-          <a className={styles['main__logo']}>
-            <div className={styles['icon']} />
-            <div className={styles['text']}>Mua ô tô</div>
+      <main className="w-[40%] h-full p-12 relative flex items-center">
+        <Link href="/home">
+          <a className="absolute top-12 left-12 flex items-center">
+            <div className="h-[30px] w-[30px] rounded-full bg-primary mr-[10px]" />
+            <div className="text-xl font-bold">Mua ô tô</div>
           </a>
         </Link>
 
-        <div className={styles['main__container']}>
-          <h1 className={styles['main__title']}>
+        <div className="w-full px-[30px]">
+          <h1 className="m-0 text-[52px]">
             Đăng nhập hệ thống
             <span></span>
           </h1>
 
-          <div className={styles['main__subtitle']}>
+          <div className="my-[50px] mx-0 text-xl text-[#8d9aaf] flex items-center">
             Bạn chưa có tài khoản?
-            <Link href="/register">Đăng ký</Link>
+            <Link href="/register">
+              <a className="block ml-2 text-primary font-medium hover:underline">Đăng ký</a>
+            </Link>
           </div>
 
-          <form
-            className={styles['main__form']}
-            autoComplete="off"
-            noValidate
-            onSubmit={handleSubmit}
-          >
+          <form className="mb-[10%] wfull" autoComplete="off" noValidate onSubmit={handleSubmit}>
             <InputField
               isAutoFocus={true}
               name="email"
@@ -130,7 +129,9 @@ const SignIn = () => {
         </div>
       </main>
 
-      <div className={styles['background']}></div>
+      <div className="w-[60%] h-full relative">
+        <Image src={ImgBackground} layout="fill" objectFit="cover" objectPosition="0 center" />
+      </div>
     </div>
   )
 }

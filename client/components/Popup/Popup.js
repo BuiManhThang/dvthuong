@@ -5,6 +5,7 @@ const Popup = ({
   title = '',
   isActive = false,
   isLoading = false,
+  isActiveLoadingScreen = true,
   onClose = () => {},
   footer = null,
 }) => {
@@ -17,10 +18,10 @@ const Popup = ({
   }, [isActive])
 
   let className =
-    'fixed top-0 left-0 w-full h-screen z-40 backdrop-blur-md flex items-center justify-center p-6 opacity-0 invisible transition-all duration-300'
+    'fixed top-0 left-0 w-full h-screen z-40 backdrop-blur-md flex items-center justify-center p-6 opacity-0 invisible transition-all duration-200'
   if (isActive) {
     className =
-      'fixed top-0 left-0 w-full h-screen z-40 backdrop-blur-md flex items-center justify-center p-6 opacity-100 visible transition-all duration-300'
+      'fixed top-0 left-0 w-full h-screen z-40 backdrop-blur-md flex items-center justify-center p-6 opacity-100 visible transition-all duration-200'
   }
 
   const handleRemoveChildren = () => {
@@ -29,6 +30,13 @@ const Popup = ({
         setIsShow(false)
       }, 200)
     }
+  }
+
+  const handleClose = () => {
+    if (isLoading) {
+      return
+    }
+    onClose()
   }
 
   return (
@@ -40,14 +48,14 @@ const Popup = ({
         }}
         className="relative bg-white min-w-[300px] h-min rounded-xl shadow-[0_0_10px_0_rgba(0,0,0,0.15)]"
       >
-        {isLoading && (
+        {isLoading && isActiveLoadingScreen && (
           <div className="absolute flex items-center justify-center z-10 top-0 left-0 w-full h-full backdrop-blur-sm">
             <div className="h-24 w-24 border-4 border-y-transparent border-x-primary rounded-full animate-spin" />
           </div>
         )}
         <div
           className="absolute z-20 w-6 h-6 flex items-center justify-center top-4 right-4 text-lg cursor-pointer hover:text-primary/80 transition-colors"
-          onClick={onClose}
+          onClick={handleClose}
         >
           <i className="fa-solid fa-xmark"></i>
         </div>

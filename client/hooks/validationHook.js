@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { validateEmpty } from '../js/commonFn'
+import { validateEmpty, validateEmail, validatePhoneNumber } from '../js/commonFn'
 
 export const useValidate = (fields) => {
   const [errors, setErrors] = useState(() => {
@@ -39,6 +39,18 @@ export const useValidate = (fields) => {
         continue
       }
 
+      if (rules.includes('email') && value !== '' && !validateEmail(value)) {
+        validationResult[key] = `${name} không đúng định dạng`
+        isValid = false
+        continue
+      }
+
+      if (rules.includes('phoneNumber') && value !== '' && !validatePhoneNumber(value)) {
+        validationResult[key] = `${name} không đúng định dạng`
+        isValid = false
+        continue
+      }
+
       if (rules.includes('isColors')) {
         if (!Array.isArray(value)) {
           validationResult[key] = `${name} không đúng định dạng màu xe`
@@ -50,12 +62,30 @@ export const useValidate = (fields) => {
           isValid = false
           continue
         }
+
         if (
           value.some((colorItem) => {
             return colorItem.colorName.trim() === '' || colorItem.images.length === 0
           })
         ) {
           validationResult[key] = `${name} cần được điền đủ thông tin`
+          isValid = false
+          continue
+        }
+
+        const isSameColor = false
+        const colorsCount = value.length
+        for (let index = 0; index < colorsCount; index++) {
+          const color = value[index]
+          const foundedColor = value.findIndex((c, idx) => c.color === color.color && idx !== index)
+          if (foundedColor >= 0) {
+            isSameColor = true
+            break
+          }
+        }
+
+        if (isSameColor) {
+          validationResult[key] = `${name} không được trùng các mã màu`
           isValid = false
           continue
         }

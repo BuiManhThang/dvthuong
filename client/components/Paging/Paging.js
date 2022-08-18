@@ -4,8 +4,8 @@ import { ComboboxLabelPositionEnum, ComboboxOptionPositionEnum } from '../../enu
 
 const PAGE_SiZE_OPTIONS = [
   {
-    _id: '30',
-    name: '30 bản ghi',
+    _id: '20',
+    name: '20 bản ghi',
   },
   {
     _id: '50',
@@ -68,6 +68,13 @@ const Paging = ({
     onChangePageIndex(prevPageIdx)
   }
 
+  const moveToPageIndex = (pageIdx) => {
+    if (pageIdx === pageIndex) {
+      return
+    }
+    onChangePageIndex(pageIdx)
+  }
+
   return (
     <div className="flex items-center justify-between h-14">
       <div className="text-sm">
@@ -117,7 +124,7 @@ const Paging = ({
                 className={`w-10 h-10 text-sm rounded-md bg-white border ${
                   pageIdx === pageIndex ? 'border-gray-300 font-medium' : 'border-white'
                 } text-black hover:bg-primary/30 transition-all flex items-center justify-center cursor-pointer`}
-                onClick={() => onChangePageIndex(pageIdx)}
+                onClick={() => moveToPageIndex(pageIdx)}
               >
                 {pageIdx}
               </div>

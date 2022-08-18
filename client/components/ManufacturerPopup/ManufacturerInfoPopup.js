@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react'
 import Popup from '../Popup/Popup'
 import InputField from '../InputField/InputField'
 import Button from '../Button/Button'
+import PopupMsg from '../Popup/PopupMsg'
 
 import { useValidate } from '../../hooks/validationHook'
-import { TypeStyle } from '../InputField/InputField'
-import { ButtonType } from '../Button/Button'
+import { TypeStyle } from '../../enums/InputFieldEnum'
+import { ButtonType } from '../../enums/ButtomEnum'
 import { ToastMsgStatus } from '../../enums/ToastMsgEnum'
 import baseApi from '../../api/BaseApi'
 
@@ -16,6 +17,8 @@ const ManufacturerInfoPopup = ({ isActive, edittingId = '', onClose = () => {} }
   const [manufacturerCode, setManufacturerCode] = useState('')
   const [manufacturerName, setManufacturerName] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingConfirmPopup, setIsLoadingConfirmPopup] = useState(false)
+  const [isActiveConfirmPopup, setIsActiveConfirmPopup] = useState(false)
   const [isFirstValidate, setIsFirstValidate] = useState(true)
 
   const { errors, validate, clearErrors, setServerErrors } = useValidate({
@@ -77,57 +80,63 @@ const ManufacturerInfoPopup = ({ isActive, edittingId = '', onClose = () => {} }
     }
   }, [manufacturerName])
 
-  const handleSaveManufacturer = async (e) => {
-    e.preventDefault()
+  const handleOpenConfirmPopup = () => {
     setIsFirstValidate(false)
     const isValid = validate({
       name: manufacturerName,
     })
     if (isValid) {
-      setIsLoading(true)
-      try {
-        setIsLoading(false)
-        let res = null
-        if (edittingId) {
-          res = await baseApi.put(`/manufacturers/${edittingId}`, {
-            name: manufacturerName,
-            code: manufacturerCode,
+      setIsActiveConfirmPopup(true)
+    }
+  }
+
+  const handleSaveManufacturer = async (e) => {
+    e.preventDefault()
+    setIsLoadingConfirmPopup(true)
+    try {
+      let res = null
+      if (edittingId) {
+        res = await baseApi.put(`/manufacturers/${edittingId}`, {
+          name: manufacturerName,
+          code: manufacturerCode,
+        })
+      } else {
+        res = await baseApi.post('manufacturers', {
+          name: manufacturerName,
+          code: manufacturerCode,
+        })
+      }
+      if (res.data.success) {
+        dispatch(
+          openToastMsg({
+            msg: 'Lưu thông tin nhà cung cấp thành công',
+            status: ToastMsgStatus.Success,
           })
-        } else {
-          res = await baseApi.post('manufacturers', {
-            name: manufacturerName,
-            code: manufacturerCode,
+        )
+        setIsLoadingConfirmPopup(false)
+        setIsActiveConfirmPopup(false)
+        onClose(true)
+      }
+    } catch (error) {
+      setIsLoadingConfirmPopup(false)
+      setIsActiveConfirmPopup(false)
+      if (error.response.status === 400) {
+        setServerErrors(error.response.data.errors)
+      } else {
+        console.log(error)
+        dispatch(
+          openToastMsg({
+            status: ToastMsgStatus.Error,
+            msg: 'Có lỗi xảy ra',
           })
-        }
-        if (res.data.success) {
-          dispatch(
-            openToastMsg({
-              msg: 'Lưu thông tin nhà cung cấp thành công',
-              status: ToastMsgStatus.Success,
-            })
-          )
-          onClose(true)
-        }
-      } catch (error) {
-        setIsLoading(false)
-        if (error.response.status === 400) {
-          setServerErrors(error.response.data.errors)
-        } else {
-          console.log(error)
-          dispatch(
-            openToastMsg({
-              status: ToastMsgStatus.Error,
-              msg: 'Có lỗi xảy ra',
-            })
-          )
-        }
+        )
       }
     }
   }
 
   return (
     <Popup title="Thêm nhà cung cấp" isLoading={isLoading} isActive={isActive} onClose={onClose}>
-      <form autoComplete="off" noValidate onSubmit={handleSaveManufacturer}>
+      <div onSubmit={handleSaveManufacturer}>
         <div className="w-96 mb-2">
           <InputField
             name="code"
@@ -162,10 +171,7 @@ const ManufacturerInfoPopup = ({ isActive, edittingId = '', onClose = () => {} }
               borderRadius: 6,
             }}
             buttonType={ButtonType.Secondary}
-            onClick={(e) => {
-              e.preventDefault()
-              onClose()
-            }}
+            onClick={() => onClose()}
           >
             Hủy
           </Button>
@@ -175,11 +181,29 @@ const ManufacturerInfoPopup = ({ isActive, edittingId = '', onClose = () => {} }
               height: 44,
               borderRadius: 6,
             }}
+            onClick={handleOpenConfirmPopup}
           >
             Lưu
           </Button>
         </div>
-      </form>
+
+        <PopupMsg
+          isActive={isActiveConfirmPopup}
+          isLoading={isLoadingConfirmPopup}
+          isActiveLoadingScreen={false}
+          title="Xác nhận"
+          msg={
+            <div>
+              <span>Bạn có chắc chắn muốn lưu thông nhà sản xuất với mã </span>
+              <span className="font-medium">{manufacturerCode}</span>?
+            </div>
+          }
+          textAgreeBtn="Đồng ý"
+          textCloseBtn="Hủy"
+          onClose={() => setIsActiveConfirmPopup(false)}
+          onAgree={handleSaveManufacturer}
+        />
+      </div>
     </Popup>
   )
 }

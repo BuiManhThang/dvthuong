@@ -12,6 +12,8 @@ const accountSlice = createSlice({
     setAccount: (state, action) => {
       if (action.payload) {
         state.accountInfo = {
+          _id: action.payload._id,
+          code: action.payload.code,
           fullName: action.payload.fullName,
           email: action.payload.email,
           phoneNumber: action.payload.phoneNumber,

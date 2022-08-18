@@ -2,14 +2,20 @@ import React, { useState, useEffect } from 'react'
 import baseApi from '../../api/BaseApi'
 import { DataTypeEnum } from '../../enums/DataTypeEnum'
 import { ComboboxLabelPositionEnum } from '../../enums/ComboboxEnum'
+import { TypeStyle } from '../../enums/InputFieldEnum'
+import { ButtonType } from '../../enums/ButtomEnum'
+import { useDispatch } from 'react-redux'
+import { openToastMsg } from '../../slices/toastMsgSlice'
+import { ToastMsgStatus } from '../../enums/ToastMsgEnum'
 
 import Head from 'next/head'
 import Button from '../../components/Button/Button'
 import ManufacturerInfoPopup from '../../components/ManufacturerPopup/ManufacturerInfoPopup'
 import Table from '../../components/Table/Table'
-import InputField, { TypeStyle } from '../../components/InputField/InputField'
+import InputField from '../../components/InputField/InputField'
 import Combobox from '../../components/Combobox/Combobox'
 import Paging from '../../components/Paging/Paging'
+import PopupMsg from '../../components/Popup/PopupMsg'
 
 const HEADERS = [
   {
@@ -18,6 +24,9 @@ const HEADERS = [
     dataType: DataTypeEnum.Text,
     width: '170px',
     minWidth: '170px',
+    sticky: {
+      left: '48px',
+    },
   },
   {
     caption: 'Tên hãng sản xuất',
@@ -27,7 +36,7 @@ const HEADERS = [
   },
   {
     caption: 'Số lượng SP',
-    fieldName: 'number',
+    fieldName: 'numberProducts',
     dataType: DataTypeEnum.Number,
     width: '150px',
     minWidth: '150px',
@@ -61,42 +70,41 @@ const ManufacturersAdmin = () => {
   const [searchText, setSearchText] = useState('')
   const [selectedSortOption, setSelectedSortOption] = useState('code|1')
   const [pageIndex, setPageIndex] = useState(1)
-  const [pageSize, setPageSize] = useState('30')
+  const [pageSize, setPageSize] = useState('20')
   const [totalRecords, setTotalRecords] = useState(0)
   const [edittingManufacturerId, setEdittingManufacturerId] = useState('')
+  const [searchFunc, setSearchFunc] = useState(null)
+  const [isActivePopupDelete, setIsActivePopupDelete] = useState(false)
+  const [isLoadingPopupDelete, setIsLoadingPopupDelete] = useState(false)
+
+  const dispatch = useDispatch()
 
   useEffect(() => {
     getPagingManufacturers(generateQuery({ PageIndex: 1 }))
+
+    return () => {
+      clearTimeout(searchFunc)
+    }
   }, [])
 
-  const getManufacturers = async () => {
-    setIsLoading(true)
-    try {
-      const res = await baseApi.get('/manufacturers/query')
-
-      setManufacturers([...res.data.data.pageData])
-      setTotalRecords(res.data.data.totalRecords)
-
-      setIsLoading(false)
-    } catch (error) {
-      setIsLoading(false)
-      console.log(error)
-    }
-  }
-
   const handleEditRow = (manufacturerId) => {
-    console.log(manufacturerId)
     setEdittingManufacturerId(manufacturerId)
     setIsActivePopupAdd(true)
   }
 
   const handleDeleteRow = (manufacturerId) => {
-    console.log(manufacturerId)
+    setEdittingManufacturerId(manufacturerId)
+    setIsActivePopupDelete(true)
   }
 
   const handleChangeSearchText = (e) => {
-    getPagingManufacturers(generateQuery({ SearchText: e.target.value }))
     setSearchText(e.target.value)
+    clearTimeout(searchFunc)
+    setSearchFunc(
+      setTimeout(() => {
+        getPagingManufacturers(generateQuery({ SearchText: e.target.value }))
+      }, 500)
+    )
   }
 
   const handleChangeSort = (e) => {
@@ -122,6 +130,8 @@ const ManufacturersAdmin = () => {
       const res = await baseApi.get(`/manufacturers/query?${query}`)
       setManufacturers([...res.data.data.pageData])
       setTotalRecords(res.data.data.totalRecords)
+      setSelectedRows([])
+      setEdittingManufacturerId('')
 
       setIsLoading(false)
     } catch (error) {
@@ -143,7 +153,70 @@ const ManufacturersAdmin = () => {
     setIsActivePopupAdd(false)
     setEdittingManufacturerId('')
     if (isReload) {
-      getPagingManufacturers(generateQuery({ PageIndex: 1 }))
+      getPagingManufacturers(generateQuery({ PageIndex: null }))
+    }
+  }
+
+  const handleClosePopupDelete = () => {
+    setEdittingManufacturerId('')
+    setIsActivePopupDelete(false)
+  }
+
+  const handleClickDeleteMultiple = () => {
+    if (selectedRows.length === 0) {
+      return
+    }
+    if (selectedRows.length === 1) {
+      setEdittingManufacturerId(selectedRows[0])
+    }
+    setIsActivePopupDelete(true)
+  }
+
+  const handleDeleteManufacturers = async () => {
+    setIsLoadingPopupDelete(true)
+    try {
+      let res = null
+      let msg = ''
+      if (edittingManufacturerId !== '') {
+        res = await baseApi.delete(`/manufacturers/${edittingManufacturerId}`)
+        msg = 'Xóa thành công 1 nhà sản xuất'
+        const deletedManufacturer = manufacturers.find((p) => p._id === edittingManufacturerId)
+        if (deletedManufacturer) {
+          msg = `Xóa thành công nhà sản xuất có mã <${deletedManufacturer.code}>`
+        }
+      } else {
+        const idList = selectedRows.join(';')
+        res = await baseApi.delete(`/manufacturers/${idList}`)
+        msg = `Xóa thành công ${selectedRows.length} nhà sản xuất`
+      }
+      dispatch(
+        openToastMsg({
+          status: ToastMsgStatus.Success,
+          msg,
+        })
+      )
+      setIsLoadingPopupDelete(false)
+      setIsActivePopupDelete(false)
+      getPagingManufacturers(generateQuery({ PageIndex: null }))
+    } catch (error) {
+      setIsLoadingPopupDelete(false)
+      setIsActivePopupDelete(false)
+      if (error.response.status === 404) {
+        dispatch(
+          openToastMsg({
+            status: ToastMsgStatus.Error,
+            msg: 'Dữ liệu đã bị thay đổi hãy tải lại trang',
+          })
+        )
+        return
+      }
+      dispatch(
+        openToastMsg({
+          status: ToastMsgStatus.Error,
+          msg: 'Có lỗi xảy ra',
+        })
+      )
+      console.log(error)
     }
   }
 
@@ -160,7 +233,7 @@ const ManufacturersAdmin = () => {
             <InputField
               id="search-text"
               name="search-text"
-              placeholder="Tìm kiếm theo tên, mã sản phẩm..."
+              placeholder="Tìm kiếm theo tên, mã nhà cung cấp..."
               typeStyle={TypeStyle.Normal}
               startIcon={
                 <div>
@@ -198,6 +271,20 @@ const ManufacturersAdmin = () => {
               </span>
               <span className="leading-none">Thêm nhà cung cấp</span>
             </Button>
+            <Button
+              style={{
+                height: '40px',
+                width: '40px',
+                minWidth: 'unset',
+              }}
+              className="hover:text-red-600 group"
+              buttonType={ButtonType.Secondary}
+              onClick={handleClickDeleteMultiple}
+            >
+              <div className="flex items-center justify-center group-hover:text-red-600">
+                <i className="fa-solid fa-trash"></i>
+              </div>
+            </Button>
           </div>
         </div>
         <div className="mt-6">
@@ -230,6 +317,35 @@ const ManufacturersAdmin = () => {
         isActive={isActivePopupAdd}
         edittingId={edittingManufacturerId}
         onClose={handleClosePopup}
+      />
+
+      <PopupMsg
+        isActive={isActivePopupDelete}
+        isLoading={isLoadingPopupDelete}
+        isActiveLoadingScreen={false}
+        title="Xác nhận"
+        textCloseBtn="Hủy"
+        textAgreeBtn="Đồng ý"
+        msg={
+          <div>
+            {selectedRows.length > 1 ? (
+              <div>
+                <span>Bạn có chắc muốn xóa </span>
+                <span className="font-medium">{selectedRows.length} </span>
+                <span>nhà sản xuất?</span>
+              </div>
+            ) : edittingManufacturerId !== '' ? (
+              <div>
+                <span>Bạn có chắc muốn xóa nhà sản xuất có mã </span>
+                <span className="font-medium">
+                  {manufacturers.find((m) => m._id === edittingManufacturerId)?.code}
+                </span>
+              </div>
+            ) : null}
+          </div>
+        }
+        onClose={handleClosePopupDelete}
+        onAgree={handleDeleteManufacturers}
       />
     </div>
   )

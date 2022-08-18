@@ -5,7 +5,7 @@ import { convertPrice } from '../../js/commonFn'
 import { useCart } from '../../hooks/cartHook'
 import Img from '../../assets/images/sign-in-background.jpg'
 
-const ProductCard = ({ name, image, price, _id }) => {
+const ProductCard = ({ name, image, price, _id, colors }) => {
   const formattedPrice = convertPrice(price)
   const url = `/products/${_id}`
 
@@ -13,7 +13,7 @@ const ProductCard = ({ name, image, price, _id }) => {
 
   const addToCart = (e) => {
     e.preventDefault()
-    addProduct(_id)
+    addProduct(_id, colors[0])
   }
 
   return (
@@ -28,8 +28,13 @@ const ProductCard = ({ name, image, price, _id }) => {
             />
           </div>
           <div className="text-left px-2 flex items-center justify-between">
-            <div>
-              <div className="mt-2 font-medium text-sm">{name}</div>
+            <div className="w-[calc(100%_-_153px)]">
+              <div
+                className="mt-2 font-medium text-sm overflow-hidden w-full whitespace-nowrap text-ellipsis"
+                title={name}
+              >
+                {name}
+              </div>
               <div className="mb-2 text-sm">Giá từ: {formattedPrice}</div>
             </div>
             <div

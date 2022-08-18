@@ -1,16 +1,18 @@
 import { useRouter } from 'next/router'
 import React, { useEffect, useRef, useState } from 'react'
 import baseApi from '../../api/BaseApi'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { setAccount } from '../../slices/accountSlice'
 import { useAccount } from '../../hooks/accountHook'
 
 import Cart from '../Cart/Cart'
 import { useCart } from '../../hooks/cartHook'
+import { setScrollVal } from '../../slices/scrollSlice'
 
 const Container = ({ children }) => {
   const [className, setClassName] = useState('w-full h-[calc(100vh_-_56px)] overflow-auto')
   const containerRef = useRef(null)
+  const isTriggerScrollTop = useSelector((state) => state.scroll.isTriggerScrollTop)
   const router = useRouter()
 
   const dispatch = useDispatch()
@@ -26,13 +28,25 @@ const Container = ({ children }) => {
           initCart(res.data.data)
         }
       } catch (error) {
+        console.log(error)
         if (error.response.status !== 401) {
           console.log(error)
         }
       }
     }
 
+    const scrollHandler = (e) => {
+      const { scrollTop } = e.target
+      dispatch(setScrollVal(scrollTop))
+    }
+
+    containerRef.current?.addEventListener('scroll', scrollHandler)
+
     getAccountInfo()
+
+    return () => {
+      containerRef.current?.removeEventListener('scroll', scrollHandler)
+    }
   }, [])
 
   useEffect(() => {
@@ -47,6 +61,12 @@ const Container = ({ children }) => {
       containerRef.current.scrollTo(0, 0)
     }
   }, [router, accountInfo])
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTo(0, 0)
+    }
+  }, [isTriggerScrollTop])
 
   return (
     <div ref={containerRef} className={className}>

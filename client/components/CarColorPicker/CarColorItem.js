@@ -4,7 +4,7 @@ import ImageUploader from '../ImageUploader/ImageUploader'
 import InputField from '../InputField/InputField'
 import ColorPicker from '../ColorPicker/ColorPicker'
 
-import { TypeStyle } from '../InputField/InputField'
+import { TypeStyle } from '../../enums/InputFieldEnum'
 
 const CarColorItem = ({ idx, value, onChange = () => {}, onRemove = () => {} }) => {
   const idColorCode = `car-color-picker-color-code-${idx}`

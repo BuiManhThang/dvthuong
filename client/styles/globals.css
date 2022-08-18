@@ -22,19 +22,19 @@ a {
 }
 
 ::-webkit-scrollbar-track {
-  width: 10px;
-  height: 10px;
-  background-color: #fff;
+  width: 8px;
+  height: 8px;
+  background-color: transparent;
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-thumb {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 8px;
   background-color: rgb(189, 183, 183);
   transition: background-color 0.2s ease;

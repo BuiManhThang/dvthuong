@@ -116,16 +116,18 @@ const Navbar = () => {
               )}
               <div className="group relative flex items-center gap-x-2 py-1 px-2 cursor-pointer rounded-md hover:bg-primary/80 hover:text-white font-medium transition-colors">
                 <div>{accountInfo.fullName}</div>
-                <div className="relative w-8 h-8">
+                <div className="relative w-9 h-9 border border-black rounded-full overflow-hidden">
                   <Image
-                    className="object-cover object-center rounded-full"
+                    className="object-cover object-center"
                     src={accountInfo.avatar}
                     width={64}
                     height={64}
+                    objectFit="cover"
+                    objectPosition="center"
                   />
                 </div>
                 <div className="absolute z-20 overflow-hidden top-full right-0 w-max bg-white shadow-[0_0_15px_0_rgba(0,0,0,0.3)] rounded-md h-0 group-hover:h-20 transition-[height] duration-300">
-                  <Link href="/home">
+                  <Link href="/info">
                     <a className="block text-black font-medium px-5 py-2 hover:bg-primary/80 hover:text-white transition-colors">
                       <span className="pr-2">
                         <i className="fa-solid fa-user"></i>

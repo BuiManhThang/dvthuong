@@ -1,7 +1,7 @@
 import React from 'react'
 import { DataTypeEnum } from '../../enums/DataTypeEnum'
 import Checkbox from '../Checkbox/Checkbox'
-import { numberWithCommas } from '../../js/commonFn'
+import { numberWithCommas, convertDate } from '../../js/commonFn'
 
 const TableRow = ({
   rowData = {},
@@ -26,7 +26,7 @@ const TableRow = ({
           style={{
             height: rowHeight,
           }}
-          className="w-12 h-12 border-b border-gray-300 bg-transparent group-hover:bg-primary/10 transition-colors"
+          className="sticky left-0 z-10 bg-white w-12 h-12 border-b border-gray-300 group-hover:bg-row-hover transition-colors"
         >
           <div className="flex items-center justify-center w-12">
             <Checkbox
@@ -40,11 +40,16 @@ const TableRow = ({
       )}
       {headers.map((header) => {
         let tdClass =
-          'text-base h-12 border-b border-gray-300 px-5 bg-transparent group-hover:bg-primary/10 transition-colors whitespace-nowrap text-ellipsis overflow-hidden'
+          'bg-white text-base h-12 border-b border-gray-300 px-5 group-hover:bg-row-hover transition-colors whitespace-nowrap text-ellipsis overflow-hidden'
         let rowValue = ''
         let key = header.fieldName
-        if (header.parent) {
-          rowValue = rowData[header.parent][header.fieldName]
+        if (header.getData !== undefined && typeof header.getData === 'function') {
+          rowValue = header.getData(rowData)
+        } else if (header.parent) {
+          rowValue = rowData[header.parent]
+          if (rowValue) {
+            rowValue = rowValue[header.fieldName]
+          }
           key = `${header.parent}.${header.fieldName}`
         } else {
           rowValue = rowData[header.fieldName]
@@ -53,21 +58,38 @@ const TableRow = ({
         if (header.dataType === DataTypeEnum.Number) {
           rowValue = numberWithCommas(rowValue)
           tdClass += ' text-right'
-        } else if (header.dataType === DataTypeEnum.Date || header.dataType === DataTypeEnum.Code) {
+        } else if (
+          header.dataType === DataTypeEnum.Date ||
+          header.dataType === DataTypeEnum.Code ||
+          header.dataType === DataTypeEnum.PhoneNumber ||
+          header.dataType === DataTypeEnum.Custom
+        ) {
+          if (header.dataType === DataTypeEnum.Date) {
+            rowValue = convertDate(rowValue)
+          }
           tdClass += ' text-center'
         } else {
           tdClass += ' text-left'
         }
 
+        if (!rowValue) {
+          rowValue = '-'
+        }
+
+        let tdStyle = {
+          height: rowHeight,
+        }
+
+        if (header.sticky !== undefined) {
+          tdStyle.position = 'sticky'
+          tdStyle = {
+            ...tdStyle,
+            ...header.sticky,
+          }
+        }
+
         return (
-          <td
-            style={{
-              height: rowHeight,
-            }}
-            className={tdClass}
-            key={key}
-            title={rowValue}
-          >
+          <td style={tdStyle} className={tdClass} key={key} title={rowValue}>
             {rowValue}
           </td>
         )
@@ -78,7 +100,7 @@ const TableRow = ({
           style={{
             height: rowHeight,
           }}
-          className="w-12 h-12 border-b border-gray-300 bg-transparent group-hover:bg-primary/10 transition-colors"
+          className="sticky right-10 w-12 h-12 border-b border-gray-300 bg-white group-hover:bg-row-hover transition-colors"
         >
           <div
             className="flex items-center justify-end text-gray-500 cursor-pointer hover:text-primary transition-colors"
@@ -93,7 +115,7 @@ const TableRow = ({
           style={{
             height: rowHeight,
           }}
-          className="w-12 h-12 border-b border-gray-300 bg-transparent group-hover:bg-primary/10 transition-colors"
+          className="sticky right-0 w-12 h-12 border-b border-gray-300 bg-white group-hover:bg-row-hover transition-colors"
         >
           <div
             className="flex items-center justify-center text-gray-500 cursor-pointer hover:text-red-600 transition-colors"

@@ -3,7 +3,7 @@ import baseApi from '../api/BaseApi'
 import { setAccount } from '../slices/accountSlice'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
-import { setTotalNumber } from '../slices/cartSlice'
+import { setProducts, setTotalNumber } from '../slices/cartSlice'
 
 export const useAccount = () => {
   const accountInfo = useSelector((state) => state.account.accountInfo)
@@ -44,6 +44,11 @@ export const useAccount = () => {
     }
   }
 
+  const update = async (userInfo) => {
+    const res = await baseApi.put(`/users/${userInfo._id}`, userInfo)
+    dispatch(setAccount(res.data.data))
+  }
+
   const register = async (email, password, confirmPassword) => {
     try {
       const res = await baseApi.post('users', {
@@ -76,20 +81,32 @@ export const useAccount = () => {
 
     let totalProducts = 0
     const formattedProducts = []
-    products.forEach((productId) => {
-      const productNumber = formattedProductNumbers.find((p) => p._id === productId)
+    const fetchProducts = products.map((product) => {
+      const productNumber = formattedProductNumbers.find(
+        (p) => p._id === product.car._id && p.color === product.color.color
+      )
       if (productNumber) {
         totalProducts += productNumber.number
-        formattedProducts.push({ _id: productId, number: productNumber.number })
+        formattedProducts.push({
+          _id: product.car._id,
+          number: productNumber.number,
+          color: product.color.color,
+        })
       } else {
         totalProducts += 1
-        formattedProducts.push({ _id: productId, number: 1 })
+        formattedProducts.push({ _id: product.car._id, number: 1, color: product.color.color })
+      }
+      return {
+        ...product.car,
+        number: productNumber?.number || 1,
+        color: product.color,
       }
     })
 
     localStorage.setItem('cart', JSON.stringify(formattedProducts))
-    dispatch(setTotalNumber(totalProducts))
+    // dispatch(setTotalNumber(totalProducts))
+    dispatch(setProducts(fetchProducts))
   }
 
-  return { accountInfo, errors, signOut, signIn, register, initCart }
+  return { accountInfo, errors, signOut, signIn, register, initCart, update }
 }

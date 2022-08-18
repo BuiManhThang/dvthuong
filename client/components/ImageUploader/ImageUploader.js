@@ -15,6 +15,7 @@ const ImageUploader = ({
   label = '',
   required = false,
   isMultiple = false,
+  isAvatar = false,
   error = '',
 }) => {
   const [imageUrl, setImageUrl] = useState('')
@@ -123,6 +124,62 @@ const ImageUploader = ({
     const newFileList = [...imageUrlList]
     newFileList.splice(idx, 1)
     onChange(newFileList)
+  }
+
+  if (isAvatar) {
+    return (
+      <div className="relative">
+        {isLoading && (
+          <div className="absolute flex items-center justify-center z-10 top-0 left-0 w-full h-full backdrop-blur-sm rounded-full">
+            <div className="h-24 w-24 border-4 border-y-transparent border-x-primary rounded-full animate-spin" />
+          </div>
+        )}
+        <input
+          ref={imageInputRef}
+          className="hidden"
+          type="file"
+          name={name}
+          id={id}
+          onChange={handleChangeImageInput}
+          multiple={false}
+        />
+        {imageUrl ? (
+          <>
+            <div
+              style={{
+                width,
+                height,
+              }}
+              className="relative w-36 h-36 rounded-full border-2 border-black overflow-hidden shadow-xl"
+            >
+              <Image
+                className="w-full h-full"
+                src={imageUrl}
+                objectFit="contain"
+                objectPosition="center"
+                width={width || 144}
+                height={height | 144}
+              />
+            </div>
+            <label
+              htmlFor={id}
+              className="absolute right-1 bottom-4 text-white z-10 w-6 h-6 bg-black flex items-center justify-center text-xs rounded-full hover:bg-primary transition-colors cursor-pointer"
+            >
+              <i className="fa-solid fa-pencil"></i>
+            </label>
+          </>
+        ) : (
+          <label
+            className="h-full w-full space-y-6 flex flex-col items-center justify-center"
+            htmlFor={id}
+          >
+            <div className="text-blue-500 text-4xl">
+              <i className="fa-solid fa-image"></i>
+            </div>
+          </label>
+        )}
+      </div>
+    )
   }
 
   if (isMultiple) {

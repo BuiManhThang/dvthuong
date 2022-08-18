@@ -1,6 +1,7 @@
 import React from 'react'
 import { DataTypeEnum } from '../../enums/DataTypeEnum'
 import TableRow from './TableRow'
+import Checkbox from '../Checkbox/Checkbox'
 
 const Table = ({
   headers = [],
@@ -43,8 +44,12 @@ const Table = ({
         <thead className="sticky top-0 z-[2]">
           <tr>
             {hasCheckbox && (
-              <th className="h-12 px-0 bg-white text-base text-gray-800 font-medium">
-                <div className="border-b border-gray-300 h-full w-full"></div>
+              <th className="sticky left-0 h-12 px-0 bg-white text-base text-gray-800 font-medium">
+                <div className="border-b border-gray-300 h-full w-full">
+                  <div className="flex items-center justify-center w-full h-full">
+                    <Checkbox id="check-all" name="check-all" />
+                  </div>
+                </div>
               </th>
             )}
             {headers.map((header, idx) => {
@@ -55,12 +60,27 @@ const Table = ({
                   'whitespace-nowrap h-12 px-0 bg-white text-base text-gray-800 font-medium text-right'
               } else if (
                 header.dataType === DataTypeEnum.Date ||
-                header.dataType === DataTypeEnum.Code
+                header.dataType === DataTypeEnum.Code ||
+                header.dataType === DataTypeEnum.PhoneNumber ||
+                header.dataType === DataTypeEnum.Custom
               ) {
                 thClass = 'h-12 px-0 bg-white text-base text-gray-800 font-medium text-center'
               }
+
+              let thStyle = {
+                height: rowHeight,
+              }
+
+              if (header.sticky !== undefined) {
+                thStyle.position = 'sticky'
+                thStyle = {
+                  ...thStyle,
+                  ...header.sticky,
+                }
+              }
+
               return (
-                <th className={thClass} key={idx}>
+                <th className={thClass} style={thStyle} key={idx}>
                   <div className="border-b border-gray-300 h-full w-full px-5 leading-[48px]">
                     {header.caption}
                   </div>
@@ -68,12 +88,12 @@ const Table = ({
               )
             })}
             {allowEdit && (
-              <th className="h-12 px-0 bg-white text-base text-gray-800 font-medium">
+              <th className="sticky right-10 h-12 px-0 bg-white text-base text-gray-800 font-medium">
                 <div className="border-b border-gray-300 h-full w-full"></div>
               </th>
             )}
             {allowDelete && (
-              <th className="h-12 px-0 bg-white text-base text-gray-800 font-medium">
+              <th className="sticky right-0 h-12 px-0 bg-white text-base text-gray-800 font-medium">
                 <div className="border-b border-gray-300 h-full w-full"></div>
               </th>
             )}

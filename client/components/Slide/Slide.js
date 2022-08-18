@@ -32,6 +32,14 @@ const Slide = ({
     }
   }, [value])
 
+  useEffect(() => {
+    clearTimeout(timeoutFunc)
+
+    return () => {
+      clearTimeout(timeoutFunc)
+    }
+  })
+
   const formattedItems = [...items]
   if (items.length) {
     formattedItems.push(items[0])

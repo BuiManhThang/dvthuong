@@ -4,4 +4,6 @@ export const DataTypeEnum = {
   Image: 'image',
   Date: 'date',
   Code: 'code',
+  PhoneNumber: 'phoneNumber',
+  Custom: 'custom',
 }

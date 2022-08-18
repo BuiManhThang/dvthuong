@@ -6,8 +6,10 @@ import Slide from '../../components/Slide/Slide'
 import Button from '../../components/Button/Button'
 import Gallery from '../../components/Gallery/Gallery'
 import ProductCard from '../../components/ProductCard/ProductCard'
+import Rating from '../../components/Rating/Rating'
 import { convertPrice, numberWithCommas } from '../../js/commonFn'
 import { useRouter } from 'next/router'
+import { useCart } from '../../hooks/cartHook'
 
 const convertDetailProduct = (productData) => {
   if (!productData) {
@@ -95,6 +97,8 @@ const ProductDetail = () => {
   const [relatedProducts, setRelatedProduct] = useState([])
   const [formattedColorList, setFormattedColorList] = useState([])
 
+  const { addProduct } = useCart()
+
   const router = useRouter()
 
   const formattedproductDetail = convertDetailProduct(productDetail)
@@ -139,9 +143,11 @@ const ProductDetail = () => {
       return productDetail
     }
 
-    getProductData().then((productDetail) => {
-      getRelatedProducts(productDetail)
-    })
+    if (router.query.id) {
+      getProductData().then((productDetail) => {
+        getRelatedProducts(productDetail)
+      })
+    }
 
     const windowResize = () => {
       if (window.innerWidth < 976) {
@@ -155,7 +161,11 @@ const ProductDetail = () => {
     return () => {
       window.removeEventListener('resize', windowResize)
     }
-  }, [])
+  }, [router.query.id])
+
+  const addToCart = () => {
+    addProduct(productDetail._id, productDetail.colors[selectedColor])
+  }
 
   return (
     <div>
@@ -199,7 +209,10 @@ const ProductDetail = () => {
                 productDetail?.size?.width
               )} x ${numberWithCommas(productDetail?.size?.height)} (cm)`}
             </div>
-            <div className="font-medium mb-2">Chọn màu</div>
+            <div className="font-medium mb-2">
+              Màu sắc:{' '}
+              {formattedColorList.length ? formattedColorList[selectedColor].colorName : ''}
+            </div>
             <ul className="flex pl-[2px] gap-x-3 mb-4 h-10 items-center transition-all">
               {formattedColorList.map((color, idx) => {
                 let className =
@@ -226,6 +239,7 @@ const ProductDetail = () => {
                 borderRadius: '8px',
                 width: '100%',
               }}
+              onClick={addToCart}
             >
               <div className="flex items-center gap-x-2">
                 <span>Thêm vào giỏ hàng</span>
@@ -272,6 +286,7 @@ const ProductDetail = () => {
 
         <div className="mt-10 pt-8 border-t-4 border-black border-solid">
           <h2 className="text-2xl font-bold mb-6">Đánh giá</h2>
+          <Rating product={productDetail} />
         </div>
 
         <div className="mt-10 pt-8 border-t-4 border-black border-solid">
@@ -291,20 +306,5 @@ const ProductDetail = () => {
     </div>
   )
 }
-
-// export async function getServerSideProps(context) {
-//   const productID = context.query.id
-//   const res = await baseApi.get(`/cars/${productID}`)
-//   let productDetail = null
-//   if (res.data.success) {
-//     productDetail = res.data.data
-//   }
-
-//   return {
-//     props: {
-//       productDetail1: productDetail,
-//     },
-//   }
-// }
 
 export default ProductDetail
