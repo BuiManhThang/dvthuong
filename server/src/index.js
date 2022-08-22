@@ -42,6 +42,11 @@ app.use('/api/v1/cars', carRouter)
 app.use('/api/v1/carts', cartRouter)
 app.use('/api/v1/orders', orderRouter)
 app.use('/api/v1/reviews', reviewRouter)
+app.use('/api/v1/test', (req, res) => {
+  res.json({
+    message: 'Hello test nha',
+  })
+})
 app.use('/', (req, res) => {
   res.json({
     message: 'Hello',
