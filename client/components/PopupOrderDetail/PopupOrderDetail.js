@@ -80,7 +80,23 @@ const PopupOrderDetail = ({ isActive, orderId, isAdminView = false, onClose = ()
       setIsLoadingCancelOrder(false)
       setIsActivePopupCancelOrder(false)
       onClose(true)
-    } catch {
+    } catch (error) {
+      setIsLoadingCancelOrder(false)
+      setIsActivePopupCancelOrder(false)
+      if (error.response.status === 400) {
+        const errors = error.response.data.errors
+        if (errors.length) {
+          if (errors[0].param === 'number') {
+            dispatch(
+              openToastMsg({
+                status: ToastMsgStatus.Error,
+                msg: errors[0].msg,
+              })
+            )
+            return
+          }
+        }
+      }
       dispatch(
         openToastMsg({
           status: ToastMsgStatus.Error,

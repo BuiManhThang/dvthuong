@@ -1,10 +1,12 @@
 import BaseController from './baseController.js'
 import Order from '../models/order.js'
 import Cart from '../models/cart.js'
+import Car from '../models/car.js'
 
 class OrderController extends BaseController {
-  constructor() {
+  constructor(car) {
     super(Order)
+    this.car = car
   }
 
   create = async (req, res) => {
@@ -172,8 +174,78 @@ class OrderController extends BaseController {
       return this.serverError(res, error)
     }
   }
+
+  update = async (req, res) => {
+    try {
+      const { id } = req.params
+      let foundEntity = await this.model.findOne({ _id: id })
+      if (!foundEntity) {
+        return this.notFound(res)
+      }
+
+      let entityData = { ...req.body }
+      const { paths } = this.model.schema
+      for (const key in paths) {
+        if (
+          !this.expectPropertyName.includes(key) &&
+          foundEntity[key] !== undefined &&
+          entityData[key] !== undefined
+        ) {
+          foundEntity[key] = entityData[key]
+        }
+      }
+
+      const carIds = foundEntity.cars.map((car) => car._id)
+      const funcList = []
+      if (entityData.status === 2) {
+        const cars = await this.car.find({ _id: { $in: carIds } })
+
+        const carCount = cars.length
+        for (let index = 0; index < carCount; index++) {
+          const car = JSON.parse(JSON.stringify(cars[index]))
+          const carInOrder = foundEntity.cars.find((c) => c._id.toString() === car._id)
+          car.number -= carInOrder.number
+          if (car.number < 0) {
+            return this.clientError(res, [
+              {
+                param: 'number',
+                msg: `Chỉ còn ${cars[index].number} sản phẩm <${car.code}>`,
+              },
+            ])
+          }
+        }
+      } else if (entityData.status === 3) {
+        const cars = await this.car.find({ _id: { $in: carIds } })
+
+        const carCount = cars.length
+        for (let index = 0; index < carCount; index++) {
+          const car = JSON.parse(JSON.stringify(cars[index]))
+          const carInOrder = foundEntity.cars.find((c) => c._id.toString() === car._id)
+          car.number -= carInOrder.number
+
+          if (car.number < 0) {
+            return this.clientError(res, [
+              {
+                param: 'number',
+                msg: `Chỉ còn ${cars[index].number} sản phẩm <${car.code}>`,
+              },
+            ])
+          }
+          funcList.push(this.car.updateOne({ _id: car._id }, car))
+        }
+      }
+
+      funcList.push(this.model.updateOne({ _id: id }, foundEntity))
+      await Promise.all([...funcList])
+
+      return this.success(res, foundEntity)
+    } catch (error) {
+      console.log(error)
+      return this.serverError(res, error)
+    }
+  }
 }
 
-const orderController = new OrderController()
+const orderController = new OrderController(Car)
 
 export default orderController
