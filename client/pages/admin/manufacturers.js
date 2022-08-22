@@ -201,6 +201,15 @@ const ManufacturersAdmin = () => {
     } catch (error) {
       setIsLoadingPopupDelete(false)
       setIsActivePopupDelete(false)
+      if (error.response.status === 400) {
+        dispatch(
+          openToastMsg({
+            status: ToastMsgStatus.Error,
+            msg: 'Không thể xóa hãng sản xuất đang có sản phẩm',
+          })
+        )
+        return
+      }
       if (error.response.status === 404) {
         dispatch(
           openToastMsg({
@@ -224,7 +233,7 @@ const ManufacturersAdmin = () => {
     <div className="container mx-auto px-6 mt-6">
       <Head>
         <title>Nhà cung cấp</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/icon.ico" />
       </Head>
 
       <main className="w-full">

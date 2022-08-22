@@ -1,5 +1,6 @@
 import User from '../models/user.js'
 import Cart from '../models/cart.js'
+import Review from '../models/review.js'
 import { body, validationResult } from 'express-validator'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
@@ -439,6 +440,7 @@ export const deleteUser = async (req, res) => {
     await Promise.all([
       User.deleteMany({ $or: filterList }),
       Cart.deleteMany({ $or: filterListCart }),
+      Review.deleteMany({ $or: filterListCart }),
     ])
     return res.sendStatus(200)
   } catch (error) {

@@ -1,10 +1,9 @@
 import React from 'react'
 import Head from 'next/head'
-import Image from 'next/image'
-import styles from '../styles/Home.module.css'
 import baseApi from '../api/BaseApi'
 import Gallery from '../components/Gallery/Gallery'
 import ManufacturerCard from '../components/ProductCard/ManufacturerCard'
+import ProductCardLoading from '../components/ProductCard/ProductCardLoading'
 import { useEffect } from 'react'
 import { useState } from 'react'
 import Link from 'next/link'
@@ -36,26 +35,38 @@ const ManufacturerePage = () => {
     <div>
       <Head>
         <title>Hãng xe - Công ty CP Việt Hưng</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/icon.ico" />
       </Head>
       <main className="container mx-auto px-6 ms:px-0">
-        <div className={styles.menu}>
-          <div className={styles.title_menu}>Thương hiệu xe nổi bật</div>
-          <div className={styles.menu_item}>
+        <div className="bg-primary pb-[10px] pt-6 my-6 rounded-md">
+          <div className="text-2xl font-bold uppercase text-center text-white">
+            Thương hiệu xe nổi bật
+          </div>
+          <div className="flex items-center justify-center gap-x-10 py-6">
             {manufacturers2.map((m) => (
               <Link key={m._id} href={`/products?m=${m._id}`}>
-                <a className="overflow-hidden">{m.name}</a>
+                <a className="overflow-hidden h-[30px] flex items-center bg-black rounded-md justify-center px-3 font-medium text-white hover:text-black hover:bg-white transition-colors duration-200">
+                  {m.name}
+                </a>
               </Link>
             ))}
           </div>
         </div>
 
         <div>
-          <Gallery>
-            {manufacturers.map((m) => {
-              return <ManufacturerCard {...m} key={m._id} />
-            })}
-          </Gallery>
+          {isLoading ? (
+            <Gallery>
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((productIdx) => (
+                <ProductCardLoading key={productIdx} />
+              ))}
+            </Gallery>
+          ) : (
+            <Gallery>
+              {manufacturers.map((m) => {
+                return <ManufacturerCard {...m} key={m._id} />
+              })}
+            </Gallery>
+          )}
         </div>
       </main>
     </div>

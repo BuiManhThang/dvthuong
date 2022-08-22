@@ -10,7 +10,7 @@ const IntroPage = () => {
     <div>
       <Head>
         <title>LIên hệ - Công ty CP Việt Hưng</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/icon.ico" />
       </Head>
       <main className="container mx-auto px-6 ms:px-0">
         <h1 className="mt-10 mb-8 text-justify text-xl font-medium lg:text-3xl lg:text-center">

@@ -16,7 +16,7 @@ const SignIn = () => {
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
   const [isTheFirstValidation, setIsTheFirstValidation] = useState(true)
-  const { signIn } = useAccount()
+  const { signIn, errors: serverErrors } = useAccount()
 
   useEffect(() => {
     if (!isTheFirstValidation) {
@@ -39,6 +39,17 @@ const SignIn = () => {
       }
     }
   }, [password])
+
+  useEffect(() => {
+    const currentErrors = {}
+    serverErrors.map((err) => {
+      currentErrors.email = err.msg
+      currentErrors.password = err.msg
+    })
+
+    setEmailError(currentErrors.email)
+    setPasswordError(currentErrors.password)
+  }, [serverErrors])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -67,14 +78,14 @@ const SignIn = () => {
     <div className="flex w-full h-screen">
       <Head>
         <title>Đăng Nhập</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/icon.ico" />
       </Head>
 
       <main className="w-[40%] h-full p-12 relative flex items-center">
         <Link href="/home">
           <a className="absolute top-12 left-12 flex items-center">
             <div className="h-[30px] w-[30px] rounded-full bg-primary mr-[10px]" />
-            <div className="text-xl font-bold">Mua ô tô</div>
+            <div className="text-xl font-bold">Ô tô Việt Hưng</div>
           </a>
         </Link>
 

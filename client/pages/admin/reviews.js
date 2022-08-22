@@ -290,7 +290,7 @@ const ReviewsAdmin = () => {
     <div className="container mx-auto px-6 mt-6">
       <Head>
         <title>Đánh giá</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/icon.ico" />
       </Head>
 
       <main className="w-full">

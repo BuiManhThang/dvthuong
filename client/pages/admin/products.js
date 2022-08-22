@@ -279,6 +279,15 @@ const ProductsAdmin = () => {
     } catch (error) {
       setIsLoadingPopupDelete(false)
       setIsActivePopupDelete(false)
+      if (error.response.status === 400) {
+        dispatch(
+          openToastMsg({
+            status: ToastMsgStatus.Error,
+            msg: 'Không thể xóa sản phẩm trong đơn hàng chưa thanh toán',
+          })
+        )
+        return
+      }
       if (error.response.status === 404) {
         dispatch(
           openToastMsg({
@@ -302,7 +311,7 @@ const ProductsAdmin = () => {
     <div className="container mx-auto px-6 mt-6">
       <Head>
         <title>Sản phẩm</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/icon.ico" />
       </Head>
 
       <main className="w-full">

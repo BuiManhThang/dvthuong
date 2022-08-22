@@ -74,14 +74,14 @@ const Register = () => {
     <div className="flex w-full h-screen">
       <Head>
         <title>Đăng ký</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/icon.ico" />
       </Head>
 
       <main className="w-[40%] h-full p-12 relative flex items-center">
         <Link href="/home">
           <a className="absolute top-12 left-12 flex items-center">
             <div className="h-[30px] w-[30px] rounded-full bg-primary mr-[10px]" />
-            <div className="text-xl font-bold">Mua ô tô</div>
+            <div className="text-xl font-bold">Ô tô Việt Hưng</div>
           </a>
         </Link>
 

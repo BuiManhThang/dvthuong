@@ -136,7 +136,7 @@ const Dashboard = () => {
       const res = await baseApi.get('/orders/getTotalRevenue?month=true')
       const formattedData = [...INITIAL_DATA_MONTH]
       res.data.data.map((r) => {
-        formattedData[r._id.month] = r.totalRevenue
+        formattedData[r._id.month - 1] = r.totalRevenue
       })
 
       for (let index = formattedData.length - 1; index >= 0; index--) {
@@ -245,7 +245,7 @@ const Dashboard = () => {
 
       const formattedData = [...INITIAL_DATA_MONTH]
       totalRevenueChartRes.data.data.map((r) => {
-        formattedData[r._id.month] = r.totalRevenue
+        formattedData[r._id.month - 1] = r.totalRevenue
       })
 
       for (let index = formattedData.length - 1; index >= 0; index--) {
@@ -282,7 +282,7 @@ const Dashboard = () => {
     <div className="container mx-auto px-6 mt-6">
       <Head>
         <title>Trang chủ</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/icon.ico" />
       </Head>
 
       <main className="w-full">

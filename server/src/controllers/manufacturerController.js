@@ -1,5 +1,6 @@
 import Manufacturer from '../models/manufacturer.js'
 import BaseController from './baseController.js'
+import Car from '../models/car.js'
 import mongoose from 'mongoose'
 
 class ManufacturerController extends BaseController {
@@ -7,8 +8,9 @@ class ManufacturerController extends BaseController {
    * Constructor
    * @param {mongoose.Model} model
    */
-  constructor(model) {
+  constructor(model, car) {
     super(model)
+    this.car = car
   }
 
   customValidate = async (req) => {
@@ -118,6 +120,7 @@ class ManufacturerController extends BaseController {
             $project: {
               name: 1,
               code: 1,
+              image: 1,
               numberProducts: { $size: '$products' },
             },
           },
@@ -142,8 +145,40 @@ class ManufacturerController extends BaseController {
       return this.serverError(res, error)
     }
   }
+
+  delete = async (req, res) => {
+    try {
+      const { id: idListStr } = req.params
+      const idList = idListStr.split(';')
+      const filterList = []
+      const filterList2 = []
+      const idListCount = idList.length
+      for (let index = 0; index < idListCount; index++) {
+        const id = idList[index]
+        filterList.push({
+          _id: id,
+        })
+        filterList2.push({
+          manufacturer: id,
+        })
+      }
+      const products = await this.car.find({ $or: filterList2 }).select({ _id: 1 })
+      if (products.length > 0) {
+        return res.sendStatus(400)
+      }
+
+      const foundEntities = await this.model.find({ $or: filterList }).select({ _id: 1 })
+      if (foundEntities.length !== idList.length) {
+        return res.sendStatus(404)
+      }
+      await this.model.deleteMany({ $or: filterList })
+      return this.success(res)
+    } catch (error) {
+      return this.serverError(res, error)
+    }
+  }
 }
 
-const manufacturerController = new ManufacturerController(Manufacturer)
+const manufacturerController = new ManufacturerController(Manufacturer, Car)
 
 export default manufacturerController

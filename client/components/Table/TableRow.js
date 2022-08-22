@@ -26,7 +26,7 @@ const TableRow = ({
           style={{
             height: rowHeight,
           }}
-          className="sticky left-0 z-10 bg-white w-12 h-12 border-b border-gray-300 group-hover:bg-row-hover transition-colors"
+          className="sticky left-0 z-[1] bg-white w-12 h-12 border-b border-gray-300 group-hover:bg-row-hover transition-colors"
         >
           <div className="flex items-center justify-center w-12">
             <Checkbox

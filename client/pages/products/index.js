@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
 import ProductCard from '../../components/ProductCard/ProductCard'
+import ProductCardLoading from '../../components/ProductCard/ProductCardLoading'
 import Gallery from '../../components/Gallery/Gallery'
 import InputField from '../../components/InputField/InputField'
 import Combobox from '../../components/Combobox/Combobox'
 import Button from '../../components/Button/Button'
+import Image from 'next/image'
 
 import baseApi from '../../api/BaseApi'
 import { TypeStyle } from '../../enums/InputFieldEnum'
 import { ComboboxLabelPositionEnum } from '../../enums/ComboboxEnum'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { triggerScrollTop } from '../../slices/scrollSlice'
 import { useRouter } from 'next/router'
+
+import NoDataImage from '../../assets/images/no-records.svg'
 
 const SORT_OPTIONS = [
   {
@@ -51,11 +55,7 @@ const Products = () => {
   const [pageSize, setPageSize] = useState('16')
   const [searchText, setSearchText] = useState('')
   const [searchFunc, setSearchFunc] = useState(null)
-  const [filterClass, setFilterClass] = useState(
-    'flex items-center justify-between mt-6 py-3 z-10 backdrop-blur-lg transition-all duration-300'
-  )
-
-  const scrollVal = useSelector((state) => state.scroll.scrollVal)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
 
   const router = useRouter()
   const dispatch = useDispatch()
@@ -63,18 +63,6 @@ const Products = () => {
   useEffect(() => {
     getInitData()
   }, [])
-
-  useEffect(() => {
-    if (scrollVal > 24) {
-      setFilterClass(
-        'flex items-center justify-between sticky top-0 py-3 px-2 z-10 bg-white transition-all duration-300 rounded-b-md shadow-md'
-      )
-    } else if (scrollVal) {
-      setFilterClass(
-        'flex items-center justify-between mt-6 py-3 px-2 z-10 bg-white transition-all duration-300 rounded-b-md'
-      )
-    }
-  }, [scrollVal])
 
   const handleChangeSearchText = (e) => {
     setSearchText(e.target.value)
@@ -143,7 +131,11 @@ const Products = () => {
   }
 
   const getPaging = async (query = '', isLoadMore = false) => {
-    setIsLoading(true)
+    if (isLoadMore) {
+      setIsLoadingMore(true)
+    } else {
+      setIsLoading(true)
+    }
     try {
       const res = await baseApi.get(`/cars/query?${query}`)
       if (isLoadMore === true) {
@@ -153,14 +145,13 @@ const Products = () => {
       }
       setTotalRecords(res.data.data.totalRecords)
       setIsLoading(false)
+      setIsLoadingMore(false)
       if (isLoadMore === false) {
         dispatch(triggerScrollTop())
       }
-      setFilterClass(
-        'flex items-center justify-between mt-6 py-3 px-2 z-10 bg-white transition-all duration-300 rounded-b-md'
-      )
     } catch (error) {
       setIsLoading(false)
+      setIsLoadingMore(false)
       console.log(error)
     }
   }
@@ -184,59 +175,83 @@ const Products = () => {
     <div>
       <Head>
         <title>Sản phẩm</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/icon.ico" />
       </Head>
 
       <main className="w-full">
         <div className="container mx-auto">
-          <div className={filterClass}>
-            <div className="w-96">
-              <InputField
-                id="search-text"
-                name="search-text"
-                placeholder="Tìm kiếm theo tên sản phẩm ..."
-                typeStyle={TypeStyle.Normal}
-                startIcon={
-                  <div>
-                    <i className="fa-solid fa-magnifying-glass"></i>
-                  </div>
-                }
-                value={searchText}
-                onInput={handleChangeSearchText}
-              />
-            </div>
-            <div className="flex items-center gap-x-3">
-              <div className="w-72">
-                <Combobox
-                  id="manufacturer"
-                  name="manufacturer"
-                  items={manufacturers}
-                  value={selectedManufacturer}
-                  label="Nhà cung cấp"
-                  labelPosition={ComboboxLabelPositionEnum.Left}
-                  onChange={handleChangeManufacturer}
+          <div className="w-full py-3 mt-6 bg-white transition-all duration-300">
+            <div className="container mx-auto flex items-center justify-between">
+              <div className="w-96">
+                <InputField
+                  id="search-text"
+                  name="search-text"
+                  placeholder="Tìm kiếm theo tên sản phẩm ..."
+                  typeStyle={TypeStyle.Normal}
+                  startIcon={
+                    <div>
+                      <i className="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                  }
+                  value={searchText}
+                  onInput={handleChangeSearchText}
                 />
               </div>
-              <div className="w-72">
-                <Combobox
-                  id="sort-option"
-                  name="sort-option"
-                  items={SORT_OPTIONS}
-                  value={selectedSortOption}
-                  label="Sắp xếp theo"
-                  labelPosition={ComboboxLabelPositionEnum.Left}
-                  onChange={handleChangeSort}
-                />
+              <div className="flex items-center gap-x-3">
+                <div className="w-72">
+                  <Combobox
+                    id="manufacturer"
+                    name="manufacturer"
+                    items={manufacturers}
+                    value={selectedManufacturer}
+                    label="Nhà cung cấp"
+                    labelPosition={ComboboxLabelPositionEnum.Left}
+                    onChange={handleChangeManufacturer}
+                  />
+                </div>
+                <div className="w-72">
+                  <Combobox
+                    id="sort-option"
+                    name="sort-option"
+                    items={SORT_OPTIONS}
+                    value={selectedSortOption}
+                    label="Sắp xếp theo"
+                    labelPosition={ComboboxLabelPositionEnum.Left}
+                    onChange={handleChangeSort}
+                  />
+                </div>
               </div>
             </div>
           </div>
           <div className="mt-6">
-            <Gallery>
-              {products.map((product) => (
-                <ProductCard key={product._id} {...product} />
-              ))}
-            </Gallery>
-            {products.length < totalRecords && (
+            {isLoading ? (
+              <Gallery>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map((productIdx) => (
+                  <ProductCardLoading key={productIdx} />
+                ))}
+              </Gallery>
+            ) : products.length > 0 ? (
+              <Gallery>
+                {products.map((product) => (
+                  <ProductCard key={product._id} {...product} />
+                ))}
+              </Gallery>
+            ) : (
+              <div>
+                <div className="relative w-[500px] h-[500px] mx-auto">
+                  <Image
+                    src={NoDataImage}
+                    objectFit="contain"
+                    objectPosition="center"
+                    layout="fill"
+                  />
+                  <div className="text-4xl text-gray-500 absolute top-7 left-1/2 -translate-x-1/2 w-full text-center bg-white">
+                    Không tìm thấy sản phẩm!
+                  </div>
+                </div>
+              </div>
+            )}
+            {products.length > 0 && products.length < totalRecords && (
               <div>
                 <Button
                   className="mx-auto mt-10"
@@ -244,7 +259,7 @@ const Products = () => {
                     height: 44,
                     borderRadius: 6,
                   }}
-                  isLoading={isLoading}
+                  isLoading={isLoadingMore}
                   onClick={handleLoadMore}
                 >
                   Tải thêm

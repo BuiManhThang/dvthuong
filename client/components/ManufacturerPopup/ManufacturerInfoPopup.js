@@ -3,6 +3,7 @@ import Popup from '../Popup/Popup'
 import InputField from '../InputField/InputField'
 import Button from '../Button/Button'
 import PopupMsg from '../Popup/PopupMsg'
+import ImageUploader from '../ImageUploader/ImageUploader'
 
 import { useValidate } from '../../hooks/validationHook'
 import { TypeStyle } from '../../enums/InputFieldEnum'
@@ -16,6 +17,7 @@ import { openToastMsg } from '../../slices/toastMsgSlice'
 const ManufacturerInfoPopup = ({ isActive, edittingId = '', onClose = () => {} }) => {
   const [manufacturerCode, setManufacturerCode] = useState('')
   const [manufacturerName, setManufacturerName] = useState('')
+  const [manufacturerImage, setManufacturerImage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingConfirmPopup, setIsLoadingConfirmPopup] = useState(false)
   const [isActiveConfirmPopup, setIsActiveConfirmPopup] = useState(false)
@@ -35,6 +37,7 @@ const ManufacturerInfoPopup = ({ isActive, edittingId = '', onClose = () => {} }
       clearErrors()
       setManufacturerCode('')
       setManufacturerName('')
+      setManufacturerImage('')
       setIsFirstValidate(true)
     } else {
       const getInitialData = async () => {
@@ -56,6 +59,7 @@ const ManufacturerInfoPopup = ({ isActive, edittingId = '', onClose = () => {} }
           if (res.data.success) {
             setManufacturerCode(res.data.data.code)
             setManufacturerName(res.data.data.name)
+            setManufacturerImage(res.data.data.image)
           }
           setIsLoading(false)
         } catch (error) {
@@ -99,11 +103,13 @@ const ManufacturerInfoPopup = ({ isActive, edittingId = '', onClose = () => {} }
         res = await baseApi.put(`/manufacturers/${edittingId}`, {
           name: manufacturerName,
           code: manufacturerCode,
+          image: manufacturerImage,
         })
       } else {
         res = await baseApi.post('manufacturers', {
           name: manufacturerName,
           code: manufacturerCode,
+          image: manufacturerImage,
         })
       }
       if (res.data.success) {
@@ -161,6 +167,18 @@ const ManufacturerInfoPopup = ({ isActive, edittingId = '', onClose = () => {} }
             error={errors.name}
             isAutoFocus
             onInput={(e) => setManufacturerName(e.target.value)}
+          />
+        </div>
+
+        <div className="w-96 mb-2">
+          <ImageUploader
+            id="image"
+            name="image"
+            label="Logo nhà cung cấp"
+            width={384}
+            height={384}
+            value={manufacturerImage}
+            onChange={(e) => setManufacturerImage(e)}
           />
         </div>
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Head from 'next/head'
 import Slide from '../../components/Slide/Slide'
 import ProductCard from '../../components/ProductCard/ProductCard'
+import ProductCardLoading from '../../components/ProductCard/ProductCardLoading'
 import Link from 'next/link'
 import Gallery from '../../components/Gallery/Gallery'
 import Button from '../../components/Button/Button'
@@ -85,6 +86,7 @@ const HomePage = () => {
 
   const [windowWidth, setWindowWidth] = useState(0)
   const [newestproducts, setNewestProducts] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
   const [productsByManufacturer, setProductsByManufacturer] = useState([])
 
   const router = useRouter()
@@ -97,6 +99,7 @@ const HomePage = () => {
     }
 
     const fetchData = async () => {
+      setIsLoading(true)
       const res = await baseApi.get('/cars/getCarsForHome')
       let newestProducts = []
       let productsByManufacturer = []
@@ -106,6 +109,7 @@ const HomePage = () => {
       }
       setNewestProducts(newestProducts)
       setProductsByManufacturer(productsByManufacturer)
+      setIsLoading(false)
     }
 
     window.addEventListener('resize', setWindowWidthFunc)
@@ -124,7 +128,7 @@ const HomePage = () => {
     <div>
       <Head>
         <title>Trang chủ</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/icon.ico" />
       </Head>
       <main className="w-full">
         <div className="w-full">
@@ -134,23 +138,33 @@ const HomePage = () => {
           <h3 className="text-xl font-bold mb-4 flex items-end justify-between mt-10">
             Sản phẩm mới nhất dành cho bạn
           </h3>
-          <Gallery>
-            {newestproducts.map((product, productIdx) => (
-              <ProductCard key={productIdx} {...product} />
-            ))}
-          </Gallery>
-          <div>
-            <Button
-              className="mx-auto mt-10"
-              style={{
-                height: 44,
-                borderRadius: 6,
-              }}
-              onClick={handleLoadMore}
-            >
-              Tải thêm
-            </Button>
-          </div>
+          {isLoading ? (
+            <Gallery>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((productIdx) => (
+                <ProductCardLoading key={productIdx} />
+              ))}
+            </Gallery>
+          ) : (
+            <>
+              <Gallery>
+                {newestproducts.map((product, productIdx) => (
+                  <ProductCard key={productIdx} {...product} />
+                ))}
+              </Gallery>
+              <div>
+                <Button
+                  className="mx-auto mt-10"
+                  style={{
+                    height: 44,
+                    borderRadius: 6,
+                  }}
+                  onClick={handleLoadMore}
+                >
+                  Tải thêm
+                </Button>
+              </div>
+            </>
+          )}
         </div>
 
         <div className="relative container mx-auto h-[500px] mt-10">
@@ -188,7 +202,7 @@ const HomePage = () => {
           ))}
         </div>
 
-        <div className="container mx-auto grid grid-cols-2 gap-x-6">
+        <div className="container mx-auto grid grid-cols-2 gap-x-6 mt-10">
           {EDITOR_PICK.map((image, idx) => {
             return (
               <div key={idx} className="group relative h-[400px] w-full overflow-hidden">
@@ -254,19 +268,5 @@ const HomePage = () => {
     </div>
   )
 }
-
-// export async function getServerSideProps(context) {
-//   const res = await baseApi.get('/cars/getCarsForHome')
-//   let productsForHome = []
-//   if (res.data.success) {
-//     productsForHome = res.data.data
-//   }
-
-//   return {
-//     props: {
-//       productsForHome1: productsForHome,
-//     },
-//   }
-// }
 
 export default HomePage

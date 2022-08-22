@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { DataTypeEnum } from '../../enums/DataTypeEnum'
 import TableRow from './TableRow'
 import Checkbox from '../Checkbox/Checkbox'
@@ -17,6 +17,14 @@ const Table = ({
   onDelete = () => {},
   onEdit = () => {},
 }) => {
+  const containerRef = useRef(null)
+
+  useEffect(() => {
+    if (isLoading && containerRef.current) {
+      containerRef.current.scrollTo(0, 0)
+    }
+  }, [isLoading])
+
   const handleChangeCheckedRow = (rowId, checked) => {
     if (checked) {
       onCheckRow([...checkedRows, rowId])
@@ -27,6 +35,7 @@ const Table = ({
 
   return (
     <div
+      ref={containerRef}
       style={{
         height,
         overflow: isLoading ? 'hidden' : null,

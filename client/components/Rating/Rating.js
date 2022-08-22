@@ -26,7 +26,7 @@ const formatRatingResult = (ratingResult) => {
         result.one = rating.numberReviews
         break
       case 2:
-        result.tow = rating.numberReviews
+        result.two = rating.numberReviews
         break
       case 3:
         result.three = rating.numberReviews

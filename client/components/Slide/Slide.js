@@ -158,7 +158,14 @@ const Slide = ({
               }}
               className={className}
             >
-              <Image layout="fill" src={item.src} objectFit={objectFit} objectPosition="center" />
+              <Image
+                layout="fill"
+                src={item.src}
+                objectFit={objectFit}
+                objectPosition="center"
+                placeholder="blur"
+                blurDataURL="https://firebasestorage.googleapis.com/v0/b/open-source-project-2f57f.appspot.com/o/images%2Fa1505a6c-9664-489e-8f74-e481943d7242.jpg?alt=media&token=7c1c8eb5-b146-46ae-90d9-45e7ecdbc480"
+              />
             </li>
           )
         })}

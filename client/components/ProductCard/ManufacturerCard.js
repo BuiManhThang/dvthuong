@@ -1,16 +1,30 @@
 import React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 
-const ManufacturerCard = ({ name, _id, numberProducts }) => {
+const ManufacturerCard = ({ name, _id, numberProducts, image }) => {
   const url = `/products?m=${_id}`
 
   return (
     <div className="group w-full rounded-xl overflow-hidden shadow-[0_0_5px_0px_rgba(0,0,0,0.15)] cursor-pointer hover:shadow-[0_0_15px_3px_rgba(0,0,0,0.15)] transition-all">
       <Link href={url}>
         <div>
-          <div className="relative w-full h-64 text-8xl text-primary flex items-center justify-center">
-            <i className="fa-solid fa-building"></i>
-          </div>
+          {image ? (
+            <div className="relative w-full h-64">
+              <Image
+                className="object-cover object-center group-hover:scale-125 transition-all duration-300"
+                layout="fill"
+                objectFit="contain"
+                objectPosition="center"
+                src={image || Img}
+              />
+            </div>
+          ) : (
+            <div className="relative w-full h-64 text-8xl text-primary flex items-center justify-center">
+              <i className="fa-solid fa-building"></i>
+            </div>
+          )}
+
           <div className="text-left px-2 flex items-center justify-between">
             <div className="w-[calc(100%_-_153px)]">
               <div

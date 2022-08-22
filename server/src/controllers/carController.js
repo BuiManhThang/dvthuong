@@ -1,12 +1,14 @@
 import BaseController from './baseController.js'
 import Car from '../models/car.js'
 import Manufacturer from '../models/manufacturer.js'
+import Order from '../models/order.js'
 import mongoose from 'mongoose'
 
 class CarController extends BaseController {
-  constructor(model, manufacturer) {
+  constructor(model, manufacturer, order) {
     super(model)
     this.manufacturer = manufacturer
+    this.order = order
   }
 
   getCarsByManufacturer = async (req, res) => {
@@ -55,7 +57,7 @@ class CarController extends BaseController {
         result.push(item)
       }
 
-      const newestProducts = await this.model.find({}).sort({ createdAt: -1 }).limit(16)
+      const newestProducts = await this.model.find({}).sort({ createdAt: -1 }).limit(8)
 
       return this.success(res, {
         newestProducts,
@@ -209,8 +211,44 @@ class CarController extends BaseController {
       return this.serverError(res, error)
     }
   }
+
+  delete = async (req, res) => {
+    try {
+      const { id: idListStr } = req.params
+      const idList = idListStr.split(';')
+      const filterList = []
+      const filterList2 = []
+      const idListCount = idList.length
+      for (let index = 0; index < idListCount; index++) {
+        const id = idList[index]
+        filterList.push({
+          _id: id,
+        })
+        filterList2.push(id)
+      }
+
+      const orderList = await this.order.find({
+        cars: { $elemMatch: { _id: { $in: filterList2 } } },
+        status: { $in: [1, 2] },
+      })
+
+      if (orderList.length > 0) {
+        return res.sendStatus(400)
+      }
+
+      const foundEntities = await this.model.find({ $or: filterList }).select({ _id: 1 })
+      if (foundEntities.length !== idList.length) {
+        return res.sendStatus(404)
+      }
+      await this.model.deleteMany({ $or: filterList })
+      return this.success(res)
+    } catch (error) {
+      console.log(error)
+      return this.serverError(res, error)
+    }
+  }
 }
 
-const carController = new CarController(Car, Manufacturer)
+const carController = new CarController(Car, Manufacturer, Order)
 
 export default carController

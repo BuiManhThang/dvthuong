@@ -46,6 +46,8 @@ const ProductCard = ({ name, image, price, _id, colors }) => {
               className="object-cover object-center group-hover:scale-125 transition-all duration-300"
               layout="fill"
               src={image || Img}
+              placeholder="blur"
+              blurDataURL="https://firebasestorage.googleapis.com/v0/b/open-source-project-2f57f.appspot.com/o/images%2Fa1505a6c-9664-489e-8f74-e481943d7242.jpg?alt=media&token=7c1c8eb5-b146-46ae-90d9-45e7ecdbc480"
             />
           </div>
           <div className="text-left px-2 flex items-center justify-between">

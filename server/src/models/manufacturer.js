@@ -5,6 +5,7 @@ const manufacturerSchema = new Schema(
   {
     code: { type: String, required: true },
     name: { type: String, maxLength: 256, required: true },
+    image: { type: String, default: '' },
   },
   {
     timestamps: true,

@@ -204,7 +204,7 @@ const Info = () => {
     <div>
       <Head>
         <title>{info?.fullName || 'Thông tin tài khoản'}</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/icon.ico" />
       </Head>
       <main className="w-full">
         <div className="container mx-auto mt-10">

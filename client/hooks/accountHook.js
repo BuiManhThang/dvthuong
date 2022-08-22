@@ -40,7 +40,11 @@ export const useAccount = () => {
         router.push('/home')
       }
     } catch (error) {
-      console.log(error)
+      if (error.response.status === 401) {
+        setErrors(error.response.data.errors)
+      } else {
+        console.log(error)
+      }
     }
   }
 
@@ -63,7 +67,6 @@ export const useAccount = () => {
       }
     } catch (error) {
       if (error.response.status === 400) {
-        console.log(error.response)
         setErrors(error.response.data.errors)
       } else {
         console.log(error)

@@ -117,9 +117,11 @@ const ProductDetail = () => {
 
     const getRelatedProducts = async (product) => {
       try {
-        const res = await baseApi.get(`/cars/q?manufacturer=${product.manufacturer._id}`)
+        const res = await baseApi.get(
+          `/cars/query?pageIndex=1&pageSize=8&manufacturer=${product.manufacturer._id}`
+        )
         if (res.data.success) {
-          setRelatedProduct(res.data.data)
+          setRelatedProduct(res.data.data.pageData)
         }
       } catch (error) {
         console.log(error)
@@ -191,7 +193,7 @@ const ProductDetail = () => {
     <div>
       <Head>
         <title>{`Sản phẩm ${productDetail?.name}`}</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/icon.ico" />
       </Head>
 
       <main className="container mx-auto px-6 sm:px-0">
@@ -310,10 +312,15 @@ const ProductDetail = () => {
         </div>
 
         <div className="mt-10 pt-8 border-t-4 border-black border-solid">
-          <h2 className="text-2xl font-bold mb-6 flex items-end">
+          <h2 className="text-2xl font-bold mb-6 flex items-end justify-between">
             <span>Sản phẩm cùng nhà cung cấp</span>
-            <div className="block ml-3 text-base text-primary transition-all hover:underline">
-              <Link href="/home">Xem tất cả</Link>
+            <div className="relative group flex items-center ml-3 text-sm text-primary">
+              <Link href={`/products?m=${productDetail?.manufacturer?._id}`}>
+                <a className="transition-all group-hover:underline">Xem tất cả</a>
+              </Link>
+              <div className="text-sm pl-1 flex items-center -translate-x-1 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-200">
+                <i className="fa-solid fa-chevron-right"></i>
+              </div>
             </div>
           </h2>
           <Gallery>
