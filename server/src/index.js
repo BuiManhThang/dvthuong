@@ -42,8 +42,8 @@ app.use('/api/v1/cars', carRouter)
 app.use('/api/v1/carts', cartRouter)
 app.use('/api/v1/orders', orderRouter)
 app.use('/api/v1/reviews', reviewRouter)
-app.get('/', (req, res) => {
-  return res.json({
+app.use('/', (req, res) => {
+  res.json({
     message: 'Hello',
   })
 })
