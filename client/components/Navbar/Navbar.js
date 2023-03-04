@@ -20,10 +20,6 @@ export const NAV_LINKS = [
     url: '/products',
   },
   {
-    name: 'Hãng sản xuất',
-    url: '/manufacturers',
-  },
-  {
     name: 'Liên hệ',
     url: '/contact',
   },

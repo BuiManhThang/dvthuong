@@ -59,14 +59,14 @@ const HEADERS = [
     dataType: DataTypeEnum.Text,
     width: '150px',
     minWidth: '150px',
-    parent: 'car',
+    parent: 'product',
     sticky: {
       left: '48px',
     },
   },
   {
     caption: 'Tên sản phẩm',
-    fieldName: 'carName',
+    fieldName: 'productName',
     dataType: DataTypeEnum.Text,
     width: '150px',
     minWidth: '150px',

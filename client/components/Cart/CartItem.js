@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { convertPrice } from '../../js/commonFn'
 import Image from 'next/image'
 import NumberChanger from '../NumberChanger/NumberChanger'
-import PopupChangeColor from '../Popup/PopupChangeColor'
 import { useCart } from '../../hooks/cartHook'
 import { useRouter } from 'next/router'
 
@@ -12,13 +11,11 @@ const CartItem = ({
   number,
   _id,
   code,
-  color,
-  colors,
+  image,
   isWatch = false,
   isAdminView = false,
 }) => {
-  const [isActivePopupChangeColor, setIsActivePopupChangeColor] = useState(false)
-  const { products, addProduct, minusProduct, deleteProduct, changeColor, toggleCart } = useCart()
+  const { addProduct, minusProduct, deleteProduct, toggleCart } = useCart()
   const router = useRouter()
 
   const totalPrice = convertPrice(price * number)
@@ -26,19 +23,12 @@ const CartItem = ({
 
   const handleChangeNumber = (newNumber) => {
     if (newNumber > number) {
-      addProduct(_id, color)
+      addProduct(_id)
     } else {
       if (newNumber > 0) {
-        minusProduct(_id, color)
+        minusProduct(_id)
       }
     }
-  }
-
-  const handleChangeColor = (newColor) => {
-    if (color.color !== newColor.color) {
-      changeColor(_id, color, newColor)
-    }
-    setIsActivePopupChangeColor(false)
   }
 
   const handleClickItem = () => {
@@ -49,13 +39,7 @@ const CartItem = ({
   return (
     <div className="last:border-b-0 pr-3 flex w-full justify-between border-b border-gray-300 py-3">
       <div className="relative mr-6 w-28 h-28 rounded-md overflow-hidden border border-gray-300 shrink-0">
-        <Image
-          src={color.image}
-          objectFit="contain"
-          objectPosition="center"
-          width={128}
-          height={128}
-        />
+        <Image src={image} objectFit="contain" objectPosition="center" width={128} height={128} />
       </div>
       <div className="flex flex-col justify-between grow py-3">
         <div className="grid grid-cols-2 gap-x-2 items-center w-full">
@@ -83,17 +67,6 @@ const CartItem = ({
           >
             Giá: {formattedPrice}
           </div>
-          <div className="justify-self-end flex items-center w-full" title={color.colorName}>
-            <span className="block leading-none w-[calc(100%_-_28px)] whitespace-nowrap overflow-hidden text-ellipsis text-right">
-              {color.colorName}
-            </span>
-            <div
-              style={{
-                backgroundColor: color.color,
-              }}
-              className="w-5 h-5 rounded-full border-2 border-white ring-1 ring-gray-400 ml-2 shrink-0"
-            ></div>
-          </div>
         </div>
         {isWatch ? (
           <div className="text-sm text-gray-500 leading-none">Số lượng: {number}</div>
@@ -104,30 +77,13 @@ const CartItem = ({
             </div>
             <div className="flex items-center gap-x-4">
               <div
-                className="text-gray-500 cursor-pointer hover:text-primary transition-colors"
-                onClick={() => setIsActivePopupChangeColor(true)}
-              >
-                <i className="fa-solid fa-pen-to-square"></i>
-                <span className="pl-2 text-sm">Đổi màu</span>
-              </div>
-              <div
                 className="text-gray-500 cursor-pointer hover:text-red-600 transition-colors"
-                onClick={() => deleteProduct(_id, color)}
+                onClick={() => deleteProduct(_id)}
               >
                 <i className="fa-solid fa-trash"></i>
                 <span className="pl-2 text-sm">Xóa</span>
               </div>
             </div>
-
-            <PopupChangeColor
-              isActive={isActivePopupChangeColor}
-              colors={colors}
-              value={color}
-              productId={_id}
-              products={products}
-              onClose={() => setIsActivePopupChangeColor(false)}
-              onChange={handleChangeColor}
-            />
           </div>
         )}
       </div>

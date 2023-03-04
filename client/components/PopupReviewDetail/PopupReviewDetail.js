@@ -101,11 +101,11 @@ const PopupReviewDetail = ({ reviewId, isActive = false, onClose = () => {} }) =
               <div className="w-60">
                 <div>
                   <span>Mã sản phẩm: </span>{' '}
-                  <span className="font-medium">{reviewDetail?.carCode}</span>
+                  <span className="font-medium">{reviewDetail?.productCode}</span>
                 </div>
                 <div>
                   <span>Tên sản phẩm: </span>{' '}
-                  <span className="font-medium">{reviewDetail?.carName}</span>
+                  <span className="font-medium">{reviewDetail?.productName}</span>
                 </div>
               </div>
             </div>

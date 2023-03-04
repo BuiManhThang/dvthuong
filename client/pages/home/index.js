@@ -9,14 +9,13 @@ import Button from '../../components/Button/Button'
 import Image from 'next/image'
 import baseApi from '../../api/BaseApi'
 
-import Img1 from '../../assets/images/slide/img-5.jpg'
-import Img2 from '../../assets/images/slide/img-1.jpg'
-import Img3 from '../../assets/images/slide/img-2.jpg'
-import Img4 from '../../assets/images/slide/img-3.jpg'
-import Img5 from '../../assets/images/slide/img-4.jpg'
-import ProductByManufacturerImg from '../../assets/images/product-by-manufacturer.jpg'
-import EditorPick1 from '../../assets/images/editor-pick-1.jpg'
-import EditorPick2 from '../../assets/images/editor-pick-2.jpg'
+import Img1 from '../../assets/images/trang_chu/slide/img-5.jpg'
+import Img2 from '../../assets/images/trang_chu/slide/img-1.jpg'
+import Img3 from '../../assets/images/trang_chu/slide/img-2.jpg'
+import Img4 from '../../assets/images/trang_chu/slide/img-3.jpg'
+import Img5 from '../../assets/images/trang_chu/slide/img-4.jpg'
+import EditorPick1 from '../../assets/images/trang_chu/lua_chon_chuyen_gia/editor-pick-1.jpg'
+import EditorPick2 from '../../assets/images/trang_chu/lua_chon_chuyen_gia/editor-pick-2.jpg'
 import { useRouter } from 'next/router'
 
 const EDITOR_PICK = [EditorPick1, EditorPick2]
@@ -87,7 +86,6 @@ const HomePage = () => {
   const [windowWidth, setWindowWidth] = useState(0)
   const [newestproducts, setNewestProducts] = useState([])
   const [isLoading, setIsLoading] = useState(false)
-  const [productsByManufacturer, setProductsByManufacturer] = useState([])
 
   const router = useRouter()
 
@@ -100,15 +98,9 @@ const HomePage = () => {
 
     const fetchData = async () => {
       setIsLoading(true)
-      const res = await baseApi.get('/cars/getCarsForHome')
-      let newestProducts = []
-      let productsByManufacturer = []
-      if (res.data.success) {
-        newestProducts = res.data.data.newestProducts
-        productsByManufacturer = res.data.data.productByManufacturer
-      }
+      const res = await baseApi.get('/products/query?sort=createdAt|-1')
+      let newestProducts = res.data.data.pageData
       setNewestProducts(newestProducts)
-      setProductsByManufacturer(productsByManufacturer)
       setIsLoading(false)
     }
 
@@ -165,41 +157,6 @@ const HomePage = () => {
               </div>
             </>
           )}
-        </div>
-
-        <div className="relative container mx-auto h-[500px] mt-10">
-          <div className="absolute z-[1] bg-black/40 top-0 left-0 w-full h-full flex items-center justify-center">
-            <h2 className="text-5xl font-bold text-white">Sản phẩm theo nhà cung cấp</h2>
-          </div>
-          <Image
-            src={ProductByManufacturerImg}
-            layout="fill"
-            objectFit="corver"
-            objectPosition="center"
-          />
-        </div>
-
-        <div className="container mx-auto">
-          {productsByManufacturer.map((productGroup, productGroupIdx) => (
-            <div className="mt-10" key={productGroupIdx}>
-              <h3 className="text-xl font-bold mb-4 flex items-end justify-between">
-                {productGroup.name}
-                <div className="relative group flex items-center ml-3 text-sm text-primary">
-                  <Link href={`/products?m=${productGroup._id}`}>
-                    <a className="transition-all group-hover:underline">Xem tất cả</a>
-                  </Link>
-                  <div className="text-sm pl-1 flex items-center -translate-x-1 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-200">
-                    <i className="fa-solid fa-chevron-right"></i>
-                  </div>
-                </div>
-              </h3>
-              <Gallery>
-                {productGroup.products.map((product, productIdx) => (
-                  <ProductCard key={productIdx} {...product} />
-                ))}
-              </Gallery>
-            </div>
-          ))}
         </div>
 
         <div className="container mx-auto grid grid-cols-2 gap-x-6 mt-10">

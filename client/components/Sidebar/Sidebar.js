@@ -11,13 +11,8 @@ const SIDEBAR_ITEMS = [
   },
   {
     title: 'Sản phẩm',
-    icon: <i className="fa-solid fa-car"></i>,
+    icon: <i className="fa-solid fa-bag-shopping"></i>,
     href: '/admin/products',
-  },
-  {
-    title: 'Hãng sản xuất',
-    icon: <i className="fa-solid fa-building"></i>,
-    href: '/admin/manufacturers',
   },
   {
     title: 'Đơn hàng',

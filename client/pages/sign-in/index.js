@@ -8,7 +8,8 @@ import Image from 'next/image'
 import { useAccount } from '../../hooks/accountHook'
 import { validateEmail, validateEmpty } from '../../js/commonFn'
 
-import ImgBackground from '../../assets/images/sign-in-background.jpg'
+import ImgBackground from '../../assets/images/dang_nhap/background.jpg'
+import resource from '../../resource'
 
 const SignIn = () => {
   const [email, setEmail] = useState('')
@@ -85,7 +86,7 @@ const SignIn = () => {
         <Link href="/home">
           <a className="absolute top-12 left-12 flex items-center">
             <div className="h-[30px] w-[30px] rounded-full bg-primary mr-[10px]" />
-            <div className="text-xl font-bold">Ô tô Việt Hưng</div>
+            <div className="text-xl font-bold">{resource.ten_trang_web}</div>
           </a>
         </Link>
 

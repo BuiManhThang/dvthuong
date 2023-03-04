@@ -13,7 +13,7 @@ class ReviewController extends BaseController {
       const query = req.query
 
       const filter = {
-        car: productId,
+        product: productId,
       }
 
       if (!query.pageIndex || !query.pageSize) {
@@ -53,7 +53,7 @@ class ReviewController extends BaseController {
       const review = await this.model
         .findOne({ _id: req.params.id })
         .populate('user')
-        .populate('car')
+        .populate('product')
       if (!review) {
         return this.notFound(res)
       }
@@ -76,7 +76,7 @@ class ReviewController extends BaseController {
       }
 
       if (query.productId) {
-        filter['car'] = query.productId
+        filter['product'] = query.productId
       }
 
       if (query.searchText) {
@@ -92,10 +92,10 @@ class ReviewController extends BaseController {
             userEmail: myRegex,
           },
           {
-            carCode: myRegex,
+            productCode: myRegex,
           },
           {
-            carName: myRegex,
+            productName: myRegex,
           },
         ]
       }
@@ -119,7 +119,13 @@ class ReviewController extends BaseController {
       const skip = (pageIndex - 1) * pageSize
 
       const [orders, numberOrders] = await Promise.all([
-        this.model.find(filter).populate('car').populate('user').sort(sort).skip(skip).limit(limit),
+        this.model
+          .find(filter)
+          .populate('product')
+          .populate('user')
+          .sort(sort)
+          .skip(skip)
+          .limit(limit),
         this.model.countDocuments(filter),
       ])
 

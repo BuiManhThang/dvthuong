@@ -88,8 +88,13 @@ const TableRow = ({
           }
         }
 
+        let cellTitle = ''
+        if (typeof rowValue === 'number' || typeof rowValue === 'string') {
+          cellTitle = rowValue
+        }
+
         return (
-          <td style={tdStyle} className={tdClass} key={key} title={rowValue}>
+          <td style={tdStyle} className={tdClass} key={key} title={cellTitle}>
             {rowValue}
           </td>
         )

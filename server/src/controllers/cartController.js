@@ -13,7 +13,7 @@ class CartController extends BaseController {
         return this.notFound(res)
       }
 
-      cart.cars = req.body.products
+      cart.products = req.body.products
       await this.model.updateOne({ _id: cart._id }, cart)
       return this.success(res)
     } catch (error) {
@@ -23,7 +23,7 @@ class CartController extends BaseController {
 
   getByUserId = async (req, res) => {
     try {
-      const cart = await this.model.findOne({ user: req.body.userId }).populate('cars.car')
+      const cart = await this.model.findOne({ user: req.body.userId }).populate('products')
       if (!cart) {
         return this.notFound(res)
       }

@@ -60,9 +60,9 @@ const RatingInput = ({ product, onSendReview = () => {} }) => {
     const productId = router.query.id
     try {
       await baseApi.post('reviews', {
-        car: productId,
-        carCode: product.code,
-        carName: product.name,
+        product: productId,
+        productCode: product.code,
+        productName: product.name,
         user: accountInfo._id,
         userCode: accountInfo.code,
         userFullname: accountInfo.fullName,

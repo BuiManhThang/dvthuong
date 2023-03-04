@@ -73,11 +73,9 @@ const Cart = ({ isActive }) => {
       _id: p._id,
       code: p.code,
       name: p.name,
-      manufacturer: p.manufacturer,
       image: p.image,
       number: p.number,
       price: p.price,
-      color: p.color,
     }))
 
     try {
@@ -201,7 +199,7 @@ const Cart = ({ isActive }) => {
               }`}
             >
               {products.map((product) => {
-                return <CartItem key={`${product._id}-${product.color.color}`} {...product} />
+                return <CartItem key={`${product._id}`} {...product} />
               })}
             </div>
             <div

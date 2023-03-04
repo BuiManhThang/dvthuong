@@ -178,12 +178,7 @@ const PopupOrderDetail = ({ isActive, orderId, isAdminView = false, onClose = ()
             >
               {orderDetail.cars?.map((product) => {
                 return (
-                  <CartItem
-                    key={`${product._id}-${product.color.color}`}
-                    {...product}
-                    isWatch
-                    isAdminView={isAdminView}
-                  />
+                  <CartItem key={`${product._id}`} {...product} isWatch isAdminView={isAdminView} />
                 )
               })}
             </div>

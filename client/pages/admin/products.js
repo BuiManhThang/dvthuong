@@ -6,6 +6,7 @@ import { ButtonType } from '../../enums/ButtomEnum'
 import { TypeStyle } from '../../enums/InputFieldEnum'
 
 import Head from 'next/head'
+import Image from 'next/image'
 import Button from '../../components/Button/Button'
 import ProductInfoPopup from '../../components/ProductPopup/ProductInfoPopup'
 import Table from '../../components/Table/Table'
@@ -29,18 +30,32 @@ const HEADERS = [
     },
   },
   {
+    caption: 'Hình ảnh',
+    fieldName: 'image',
+    dataType: DataTypeEnum.Custom,
+    width: '150px',
+    minWidth: '150px',
+    getData: (rowValue) => {
+      return (
+        <div className="flex items-center">
+          <Image
+            src={rowValue.image}
+            alt={rowValue.name}
+            width={100}
+            height={100}
+            objectFit="contain"
+            objectPosition="center"
+          />
+        </div>
+      )
+    },
+  },
+  {
     caption: 'Tên sản phẩm',
     fieldName: 'name',
     dataType: DataTypeEnum.Text,
     width: 'unset',
     minWidth: '200px',
-  },
-  {
-    caption: 'Hãng sản xuất',
-    fieldName: 'name',
-    dataType: DataTypeEnum.Text,
-    minWidth: '200px',
-    parent: 'manufacturer',
   },
   {
     caption: 'Giá',
@@ -76,14 +91,6 @@ const SORT_OPTIONS = [
     name: 'Tên sản phẩm giảm dần',
   },
   {
-    _id: 'manufacturer|1',
-    name: 'Tên nhà sản xuất tăng dần',
-  },
-  {
-    _id: 'manufacturer|-1',
-    name: 'Tên nhà sản xuất giảm dần',
-  },
-  {
     _id: 'price|1',
     name: 'Giá tăng dần',
   },
@@ -107,12 +114,10 @@ const ProductsAdmin = () => {
   const [isLoadingPopupDelete, setIsLoadingPopupDelete] = useState(false)
   const [deletedProductId, setDeletedProductId] = useState('')
   const [products, setProducts] = useState([])
-  const [manufacturers, setManufacturers] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [selectedRows, setSelectedRows] = useState([])
   const [edittingProductId, setEdittingProductId] = useState('')
   const [searchText, setSearchText] = useState('')
-  const [selectedManufacturer, setSelectedManufacturer] = useState('')
   const [selectedSortOption, setSelectedSortOption] = useState('code|1')
   const [pageIndex, setPageIndex] = useState(1)
   const [pageSize, setPageSize] = useState('20')
@@ -132,20 +137,7 @@ const ProductsAdmin = () => {
   const getProducts = async () => {
     setIsLoading(true)
     try {
-      const [_, resManufacturer] = await Promise.all([
-        getPagingProducts(generateQuery({ PageIndex: null })),
-        baseApi.get('manufacturers'),
-      ])
-
-      setManufacturers([
-        {
-          _id: '',
-          name: 'Tất cả',
-        },
-        ...resManufacturer.data.data,
-      ])
-
-      setIsLoading(false)
+      getPagingProducts(generateQuery({ PageIndex: null })), setIsLoading(false)
     } catch (error) {
       setIsLoading(false)
       console.log(error)
@@ -172,12 +164,6 @@ const ProductsAdmin = () => {
     )
   }
 
-  const handleChangeManufacturer = (e) => {
-    getPagingProducts(generateQuery({ Manufacturer: e, PageIndex: 1 }))
-    setPageIndex(1)
-    setSelectedManufacturer(e)
-  }
-
   const handleChangeSort = (e) => {
     getPagingProducts(generateQuery({ Sort: e, PageIndex: 1 }))
     setPageIndex(1)
@@ -195,25 +181,19 @@ const ProductsAdmin = () => {
     getPagingProducts(generateQuery({ PageSize: newPageSize, PageIndex: 1 }))
   }
 
-  const generateQuery = ({
-    SearchText = null,
-    PageSize = null,
-    PageIndex = null,
-    Manufacturer = null,
-    Sort = null,
-  }) => {
+  const generateQuery = ({ SearchText = null, PageSize = null, PageIndex = null, Sort = null }) => {
     const query = `pageSize=${PageSize || pageSize}&pageIndex=${
       PageIndex || pageIndex
-    }&searchText=${SearchText !== null ? SearchText : searchText}&manufacturer=${
-      Manufacturer === null ? selectedManufacturer : Manufacturer
-    }&sort=${Sort || selectedSortOption}`
+    }&searchText=${SearchText !== null ? SearchText : searchText}&sort=${
+      Sort || selectedSortOption
+    }`
     return query
   }
 
   const getPagingProducts = async (query = '') => {
     setIsLoading(true)
     try {
-      const resProduct = await baseApi.get(`/cars/query?${query}`)
+      const resProduct = await baseApi.get(`/products/query?${query}`)
       setProducts([...resProduct.data.data.pageData])
       setTotalRecords(resProduct.data.data.totalRecords)
       setSelectedRows([])
@@ -256,7 +236,7 @@ const ProductsAdmin = () => {
       let res = null
       let msg = ''
       if (deletedProductId !== '') {
-        res = await baseApi.delete(`/cars/${deletedProductId}`)
+        res = await baseApi.delete(`/products/${deletedProductId}`)
         msg = 'Xóa thành công 1 sản phẩm'
         const deletedProduct = products.find((p) => p._id === deletedProductId)
         if (deletedProduct) {
@@ -264,7 +244,7 @@ const ProductsAdmin = () => {
         }
       } else {
         const idList = selectedRows.join(';')
-        res = await baseApi.delete(`/cars/${idList}`)
+        res = await baseApi.delete(`/products/${idList}`)
         msg = `Xóa thành công ${selectedRows.length} sản phẩm`
       }
       dispatch(
@@ -332,17 +312,6 @@ const ProductsAdmin = () => {
             />
           </div>
           <div className="flex items-center gap-x-3">
-            <div className="w-72">
-              <Combobox
-                id="manufacturer"
-                name="manufacturer"
-                items={manufacturers}
-                value={selectedManufacturer}
-                label="Nhà cung cấp"
-                labelPosition={ComboboxLabelPositionEnum.Left}
-                onChange={handleChangeManufacturer}
-              />
-            </div>
             <div className="w-72">
               <Combobox
                 id="sort-option"

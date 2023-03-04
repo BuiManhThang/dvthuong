@@ -8,18 +8,12 @@ const orderSchema = new Schema(
     status: { type: Number, default: 1 },
     cars: [
       {
-        _id: { type: Schema.Types.ObjectId, ref: 'Car' },
+        _id: { type: Schema.Types.ObjectId, ref: 'Product' },
         code: { type: String, required: true },
         name: { type: String, maxLength: 256, required: true },
-        manufacturer: { type: Schema.Types.ObjectId, ref: 'Manufacturer' },
         image: { type: String },
         number: { type: Number, default: 0 },
         price: { type: Number, required: true },
-        color: {
-          colorName: { type: String, default: '' },
-          color: { type: String, default: '' },
-          image: { type: String, default: '' },
-        },
       },
     ],
     user: {

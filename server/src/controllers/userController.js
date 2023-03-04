@@ -38,6 +38,7 @@ export const createUser = [
     .withMessage('Bắt buộc nhập xác nhận mật khẩu')
     .escape(),
   async (req, res) => {
+    console.log(req)
     try {
       const errors = validationResult(req)
       if (!errors.isEmpty()) {
@@ -196,7 +197,7 @@ export const signIn = async (req, res) => {
     const cart = await Cart.findOne({ user: info._id })
     let products = []
     if (cart) {
-      products = cart.cars
+      products = cart.products
     }
 
     return res.json({
@@ -223,17 +224,18 @@ export const getCurrentUser = async (req, res) => {
 
     const { password, ...info } = user.toJSON()
 
-    const cart = await Cart.findOne({ user: info._id }).populate('cars.car')
+    const cart = await Cart.findOne({ user: info._id }).populate('products')
     let products = []
     if (cart) {
-      products = cart.cars
+      products = cart.products
     }
-
+    console.log(products)
     return res.json({
       success: true,
       data: { ...info, products },
     })
   } catch (error) {
+    console.log(error)
     return res.status(500).json({
       success: false,
       msg: 'Server error',

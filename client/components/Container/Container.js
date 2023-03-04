@@ -29,7 +29,7 @@ const Container = ({ children }) => {
         }
       } catch (error) {
         console.log(error)
-        if (error.response.status !== 401) {
+        if (error.response?.status !== 401) {
           console.log(error)
         }
       }

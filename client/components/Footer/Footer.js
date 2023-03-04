@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { NAV_LINKS } from '../Navbar/Navbar'
 import { useAccount } from '../../hooks/accountHook'
 import Link from 'next/link'
+import resource from '../../resource'
 
 const Footer = () => {
   const [isVisible, setIsVisible] = useState(true)
@@ -33,8 +34,7 @@ const Footer = () => {
             Về chúng tôi
           </h3>
           <div className="text-gray-400 text-justify mb-5 text-sm">
-            Công ty CP Việt Hưng tự hào là một trong những doanh nghiệp có sự phát triển vượt bậc trong năm 2021. Đồng thời cũng là
-            một trong những công ty đi đầu cả nước về xe thân thiện với môi trường.
+            {resource.footer.ve_chung_toi}
           </div>
           <ul className="flex text-gray-400 text-lg gap-x-3">
             <li className="cursor-pointer hover:text-primary transition-colors duration-300">
@@ -57,20 +57,21 @@ const Footer = () => {
             Liên hệ với chúng tôi
           </h3>
           <div className="text-gray-400 text-justify mb-5 text-sm">
-            Hiện tại trụ sở chính của công ty đang nằm tại Cầu Giấy, Hà Nội. Quý khách hàng có thể ghé thăm để 
-            lựa chọn những mẫu xe và trải nghiệm dịch vụ bên công ty cung cấp.
+            {resource.footer.lien_he_voi_chung_toi}
           </div>
           <div>
             <h4 className="text-lg font-medium text-primary mb-2">Địa chỉ:</h4>
-            <div className="text-gray-400 text-justify mb-5 text-sm">370Đ Cầu Giấy Hà Nội</div>
+            <div className="text-gray-400 text-justify mb-5 text-sm">{resource.footer.dia_chi}</div>
           </div>
           <div>
             <h4 className="text-lg font-medium text-primary mb-2">Thông tin liên lạc:</h4>
-            <div className="text-gray-400 text-justify mb-2 text-sm">Điện thoại: 0123456789</div>
+            <div className="text-gray-400 text-justify mb-2 text-sm">
+              Điện thoại: {resource.footer.dien_thoai}
+            </div>
             <div className="text-gray-400 text-justify text-sm">
               Email:{' '}
               <span className="cursor-pointer text-gray-100 hover:text-primary transition-colors">
-                muabanoto@gmail.com
+                {resource.footer.email}
               </span>
             </div>
           </div>
@@ -96,8 +97,7 @@ const Footer = () => {
             Đăng ký để bắt đầu mua hàng
           </h3>
           <div className="text-gray-400 text-justify mb-5 text-sm">
-            Bằng việc đăng nhập vào hệ thống, bạn có thể bắt đầu đặt hàng, trải nghiệm các dịch vụ
-            và nhận các thông tin khuyến mại mới nhất
+            {resource.footer.dang_ky_de_bat_dau_mua_hang}
           </div>
           <div className="relative">
             <input
@@ -114,7 +114,7 @@ const Footer = () => {
       </div>
 
       <div className="text-sm text-gray-400 py-10 mt-5 border-t border-gray-400 border-solid text-center">
-        @2022 MuaBanOto
+        {resource.footer.chu_duoi_cung}
       </div>
     </div>
   )

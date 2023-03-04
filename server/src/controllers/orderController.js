@@ -1,12 +1,12 @@
 import BaseController from './baseController.js'
 import Order from '../models/order.js'
 import Cart from '../models/cart.js'
-import Car from '../models/car.js'
+import Product from '../models/product.js'
 
 class OrderController extends BaseController {
-  constructor(car) {
+  constructor(product) {
     super(Order)
-    this.car = car
+    this.product = product
   }
 
   create = async (req, res) => {
@@ -41,7 +41,7 @@ class OrderController extends BaseController {
 
       const savedOrder = await newOrder.save()
 
-      await Cart.updateOne({ user: req.body.userId }, { cars: [] })
+      await Cart.updateOne({ user: req.body.userId }, { products: [] })
 
       return this.created(res, savedOrder)
     } catch (error) {
@@ -198,7 +198,7 @@ class OrderController extends BaseController {
       const carIds = foundEntity.cars.map((car) => car._id)
       const funcList = []
       if (entityData.status === 2) {
-        const cars = await this.car.find({ _id: { $in: carIds } })
+        const cars = await this.product.find({ _id: { $in: carIds } })
 
         const carCount = cars.length
         for (let index = 0; index < carCount; index++) {
@@ -215,7 +215,7 @@ class OrderController extends BaseController {
           }
         }
       } else if (entityData.status === 3) {
-        const cars = await this.car.find({ _id: { $in: carIds } })
+        const cars = await this.product.find({ _id: { $in: carIds } })
 
         const carCount = cars.length
         for (let index = 0; index < carCount; index++) {
@@ -231,7 +231,7 @@ class OrderController extends BaseController {
               },
             ])
           }
-          funcList.push(this.car.updateOne({ _id: car._id }, car))
+          funcList.push(this.product.updateOne({ _id: car._id }, car))
         }
       }
 
@@ -246,6 +246,6 @@ class OrderController extends BaseController {
   }
 }
 
-const orderController = new OrderController(Car)
+const orderController = new OrderController(Product)
 
 export default orderController

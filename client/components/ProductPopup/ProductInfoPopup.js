@@ -20,54 +20,12 @@ import RadioGroup from '../Radio/RadioGroup'
 const INITIAL_PRODUCT_DATA = {
   code: '',
   name: '',
-  manufacturer: '',
   number: 0,
   price: 0,
   image: '',
-  cylinderCapacity: 0,
-  fuelCapacity: 0,
-  consumption: 0,
-  size: {
-    length: 0,
-    width: 0,
-    height: 0,
-  },
-  colors: [],
   gallery: [],
-  detail: {
-    numberOfSeats: 0,
-    weight: 0,
-    engineType: '',
-    energySystem: '',
-    frontBrake: 1,
-    backBrake: 1,
-    powerSupport: false,
-    eco: false,
-    warningSystem: false,
-  },
+  desc: '',
 }
-
-const BRAKE_OPTIONS = [
-  {
-    _id: 1,
-    name: 'Phanh đĩa',
-  },
-  {
-    _id: 2,
-    name: 'Phanh tang trống',
-  },
-]
-
-const TRUE_FALSE_OPTIONS = [
-  {
-    _id: true,
-    name: 'Có',
-  },
-  {
-    _id: false,
-    name: 'Không',
-  },
-]
 
 const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = () => {} }) => {
   const [productData, setProductData] = useState(JSON.parse(JSON.stringify(INITIAL_PRODUCT_DATA)))
@@ -75,10 +33,6 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
   const { errors, validate, clearErrors, setServerErrors } = useValidate({
     name: {
       name: 'Tên sản phẩm',
-      rules: ['required'],
-    },
-    manufacturer: {
-      name: 'Nhà cung cấp',
       rules: ['required'],
     },
     number: {
@@ -93,64 +47,12 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
       name: 'Hình ảnh',
       rules: ['required'],
     },
-    cylinderCapacity: {
-      name: 'Dung tích xi lanh (cm3)',
-      rules: ['required'],
-    },
-    fuelCapacity: {
-      name: 'Dung tích thùng nhiên liệu (lít)',
-      rules: ['required'],
-    },
-    consumption: {
-      name: 'Dung tích tiêu thụ (lít/100km)',
-      rules: ['required'],
-    },
-    length: {
-      name: 'Dài (mm)',
-      rules: ['required'],
-      parent: 'size',
-    },
-    width: {
-      name: 'Rộng (mm)',
-      rules: ['required'],
-      parent: 'size',
-    },
-    height: {
-      name: 'Cao (mm)',
-      rules: ['required'],
-      parent: 'size',
-    },
-    numberOfSeats: {
-      name: 'Số ghế',
-      rules: ['required'],
-      parent: 'detail',
-    },
-    weight: {
-      name: 'Cân nặng (kg)',
-      rules: ['required'],
-      parent: 'detail',
-    },
-    engineType: {
-      name: 'Kiều động cơ',
-      rules: ['required'],
-      parent: 'detail',
-    },
-    energySystem: {
-      name: 'Hệ thống nhiên liệu',
-      rules: ['required'],
-      parent: 'detail',
-    },
-    colors: {
-      name: 'Màu xe',
-      rules: ['isColors'],
-    },
   })
 
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingConfirmPopup, setIsLoadingConfirmPopup] = useState(false)
   const [isActiveConfirmPopup, setIsActiveConfirmPopup] = useState(false)
   const [isFirstValidate, setIsFirstValidate] = useState(true)
-  const [manufacturerList, setManufacturerList] = useState([])
 
   const dispatch = useDispatch()
 
@@ -163,13 +65,7 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
       const getInitialData = async () => {
         setIsLoading(true)
         try {
-          const [resManufacturers, resNewCode] = await Promise.all([
-            baseApi.get('/manufacturers'),
-            baseApi.get('/cars/newCode'),
-          ])
-          if (resManufacturers.data.success) {
-            setManufacturerList(resManufacturers.data.data)
-          }
+          const resNewCode = await baseApi.get('/products/newCode')
           if (resNewCode.data.success) {
             setProductData((prev) => {
               return {
@@ -188,17 +84,10 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
       const getInitialDataWithId = async (id) => {
         setIsLoading(true)
         try {
-          const [resManufacturers, resProduct] = await Promise.all([
-            baseApi.get('/manufacturers'),
-            baseApi.get(`/cars/${id}`),
-          ])
-          if (resManufacturers.data.success) {
-            setManufacturerList(resManufacturers.data.data)
-          }
+          const resProduct = await baseApi.get(`/products/${id}`)
           if (resProduct.data.success) {
             setProductData({
               ...resProduct.data.data,
-              manufacturer: resProduct.data.data.manufacturer._id,
             })
           }
           setIsLoading(false)
@@ -227,9 +116,9 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
     try {
       let res = null
       if (edittingProductId) {
-        res = await baseApi.put(`/cars/${edittingProductId}`, productData)
+        res = await baseApi.put(`/products/${edittingProductId}`, productData)
       } else {
-        res = await baseApi.post('cars', productData)
+        res = await baseApi.post('products', productData)
       }
       if (res.data.success) {
         setIsLoadingConfirmPopup(false)
@@ -339,23 +228,6 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
 
           <div className="mb-2 flex items-center gap-x-4">
             <div className="w-96">
-              <Combobox
-                id="manufacturer"
-                name="manufacturer"
-                label="Nhà cung cấp"
-                required
-                items={manufacturerList}
-                value={productData.manufacturer}
-                error={errors.manufacturer}
-                onChange={(e) =>
-                  setProductData((prev) => ({
-                    ...prev,
-                    manufacturer: e,
-                  }))
-                }
-              />
-            </div>
-            <div className="w-96">
               <InputFieldNumber
                 name="price"
                 id="price"
@@ -371,10 +243,7 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 }
               />
             </div>
-          </div>
-
-          <div className="mb-2 flex items-center gap-x-4">
-            <div className="w-[184px]">
+            <div className="w-96">
               <InputFieldNumber
                 name="number"
                 id="number"
@@ -386,114 +255,6 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                   setProductData((prev) => ({
                     ...prev,
                     number: e,
-                  }))
-                }
-              />
-            </div>
-            <div className="w-[184px]">
-              <InputFieldNumber
-                name="cylinderCapacity"
-                id="cylinderCapacity"
-                label="Dung tích xi lanh (cm3)"
-                required={true}
-                value={productData.cylinderCapacity}
-                error={errors.cylinderCapacity}
-                onInput={(e) =>
-                  setProductData((prev) => ({
-                    ...prev,
-                    cylinderCapacity: e,
-                  }))
-                }
-              />
-            </div>
-            <div className="w-[184px]">
-              <InputFieldNumber
-                name="fuelCapacity"
-                id="fuelCapacity"
-                label="Dung tích nhiên liệu (lít)"
-                required={true}
-                value={productData.fuelCapacity}
-                error={errors.fuelCapacity}
-                onInput={(e) =>
-                  setProductData((prev) => ({
-                    ...prev,
-                    fuelCapacity: e,
-                  }))
-                }
-              />
-            </div>
-            <div className="w-[184px]">
-              <InputFieldNumber
-                name="consumption"
-                id="consumption"
-                label="Mức tiêu thụ (lít/100km)"
-                required={true}
-                value={productData.consumption}
-                error={errors.consumption}
-                onInput={(e) =>
-                  setProductData((prev) => ({
-                    ...prev,
-                    consumption: e,
-                  }))
-                }
-              />
-            </div>
-          </div>
-
-          <div className="mb-2 flex items-center gap-x-4">
-            <div className="w-[117px]">
-              <InputFieldNumber
-                name="length"
-                id="length"
-                label="Dài"
-                required={true}
-                value={productData.size.length}
-                error={errors.length}
-                onInput={(e) =>
-                  setProductData((prev) => ({
-                    ...prev,
-                    size: {
-                      ...prev.size,
-                      length: e,
-                    },
-                  }))
-                }
-              />
-            </div>
-            <div className="w-[117px]">
-              <InputFieldNumber
-                name="width"
-                id="width"
-                label="Rộng"
-                required={true}
-                value={productData.size.width}
-                error={errors.width}
-                onInput={(e) =>
-                  setProductData((prev) => ({
-                    ...prev,
-                    size: {
-                      ...prev.size,
-                      width: e,
-                    },
-                  }))
-                }
-              />
-            </div>
-            <div className="w-[117px]">
-              <InputFieldNumber
-                name="height"
-                id="height"
-                label="Cao"
-                required={true}
-                value={productData.size.height}
-                error={errors.height}
-                onInput={(e) =>
-                  setProductData((prev) => ({
-                    ...prev,
-                    size: {
-                      ...prev.size,
-                      height: e,
-                    },
                   }))
                 }
               />
@@ -519,199 +280,18 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
                 }
               />
             </div>
-
-            <div className="w-96">
-              <CarColorPicker
-                value={productData.colors}
-                required
-                width={384}
-                height={384}
-                error={errors.colors}
-                onChange={(e) =>
-                  setProductData((prev) => ({
-                    ...prev,
-                    colors: e,
-                  }))
-                }
-              />
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <h2 className="text-lg font-medium leading-none mb-4">Thông tin chi tiết</h2>
-          <div className="mb-2 flex items-center gap-x-4">
             <div className="w-96">
               <InputField
-                name="engineType"
-                id="engineType"
-                label="Kiểu động cơ"
-                required={true}
-                typeStyle={TypeStyle.Normal}
-                value={productData.detail.engineType}
-                error={errors.engineType}
-                onInput={(e) =>
-                  setProductData({
-                    ...productData,
-                    detail: {
-                      ...productData.detail,
-                      engineType: e.target.value,
-                    },
-                  })
-                }
-              />
-            </div>
-            <div className="w-96">
-              <InputField
-                name="energySystem"
-                id="energySystem"
-                label="Hệ thống nhiên liệu"
-                required={true}
-                typeStyle={TypeStyle.Normal}
-                value={productData.detail.energySystem}
-                error={errors.energySystem}
-                onInput={(e) =>
-                  setProductData({
-                    ...productData,
-                    detail: {
-                      ...productData.detail,
-                      energySystem: e.target.value,
-                    },
-                  })
-                }
-              />
-            </div>
-          </div>
-
-          <div className="mb-2 flex items-center gap-x-4">
-            <div className="w-[184px]">
-              <InputFieldNumber
-                name="numberOfSeats"
-                id="numberOfSeats"
-                label="Số ghế"
-                required={true}
-                value={productData.detail.numberOfSeats}
-                error={errors.numberOfSeats}
+                name="desc"
+                id="desc"
+                label="Mô tả"
+                typeStyle={TypeStyle.TextArea}
+                value={productData.desc}
+                height="384px"
                 onInput={(e) =>
                   setProductData((prev) => ({
                     ...prev,
-                    detail: {
-                      ...prev.detail,
-                      numberOfSeats: e,
-                    },
-                  }))
-                }
-              />
-            </div>
-            <div className="w-[184px]">
-              <InputFieldNumber
-                name="weight"
-                id="weight"
-                label="Cân nặng (kg)"
-                required={true}
-                value={productData.detail.weight}
-                error={errors.weight}
-                onInput={(e) =>
-                  setProductData((prev) => ({
-                    ...prev,
-                    detail: {
-                      ...prev.detail,
-                      weight: e,
-                    },
-                  }))
-                }
-              />
-            </div>
-
-            <div className="w-[184px]">
-              <Combobox
-                id="frontBrake"
-                name="frontBrake"
-                label="Phanh trước"
-                items={BRAKE_OPTIONS}
-                value={productData.detail.frontBrake}
-                onChange={(e) =>
-                  setProductData((prev) => ({
-                    ...prev,
-                    detail: {
-                      ...prev.detail,
-                      frontBrake: e,
-                    },
-                  }))
-                }
-              />
-            </div>
-            <div className="w-[184px]">
-              <Combobox
-                id="backBrake"
-                name="backBrake"
-                label="Phanh sau"
-                items={BRAKE_OPTIONS}
-                value={productData.detail.backBrake}
-                onChange={(e) =>
-                  setProductData((prev) => ({
-                    ...prev,
-                    detail: {
-                      ...prev.detail,
-                      backBrake: e,
-                    },
-                  }))
-                }
-              />
-            </div>
-          </div>
-
-          <div className="mb-2 flex items-center gap-x-4">
-            <div className="w-[184px]">
-              <RadioGroup
-                name="powerSupport"
-                id="powerSupport"
-                label="Hệ thống trợ lực"
-                items={TRUE_FALSE_OPTIONS}
-                value={productData.detail.powerSupport}
-                onChange={(e) =>
-                  setProductData((prev) => ({
-                    ...prev,
-                    detail: {
-                      ...prev.detail,
-                      powerSupport: e,
-                    },
-                  }))
-                }
-              />
-            </div>
-            <div className="w-[184px]">
-              <RadioGroup
-                name="eco"
-                id="eco"
-                label="Eco"
-                items={TRUE_FALSE_OPTIONS}
-                value={productData.detail.eco}
-                onChange={(e) =>
-                  setProductData((prev) => ({
-                    ...prev,
-                    detail: {
-                      ...prev.detail,
-                      eco: e,
-                    },
-                  }))
-                }
-              />
-            </div>
-            <div className="w-[184px]">
-              <RadioGroup
-                name="warningSystem"
-                id="warningSystem"
-                label="Hệ thống cảnh báo"
-                items={TRUE_FALSE_OPTIONS}
-                value={productData.detail.warningSystem}
-                onChange={(e) =>
-                  setProductData((prev) => ({
-                    ...prev,
-                    detail: {
-                      ...prev.detail,
-                      warningSystem: e,
-                    },
+                    desc: e.target.value,
                   }))
                 }
               />
@@ -733,24 +313,24 @@ const ProductInfoPopup = ({ isActive = false, edittingProductId = '', onClose = 
               }
             />
           </div>
-        </div>
 
-        <PopupMsg
-          isActive={isActiveConfirmPopup}
-          isLoading={isLoadingConfirmPopup}
-          isActiveLoadingScreen={false}
-          title="Xác nhận"
-          msg={
-            <div>
-              <span>Bạn có chắc chắn muốn lưu thông tin sản phẩn với mã </span>
-              <span className="font-medium">{productData.code}</span>?
-            </div>
-          }
-          textAgreeBtn="Đồng ý"
-          textCloseBtn="Hủy"
-          onClose={handleCloseConfirmPopup}
-          onAgree={handleSaveProduct}
-        />
+          <PopupMsg
+            isActive={isActiveConfirmPopup}
+            isLoading={isLoadingConfirmPopup}
+            isActiveLoadingScreen={false}
+            title="Xác nhận"
+            msg={
+              <div>
+                <span>Bạn có chắc chắn muốn lưu thông tin sản phẩn với mã </span>
+                <span className="font-medium">{productData.code}</span>?
+              </div>
+            }
+            textAgreeBtn="Đồng ý"
+            textCloseBtn="Hủy"
+            onClose={handleCloseConfirmPopup}
+            onAgree={handleSaveProduct}
+          />
+        </div>
       </div>
     </Popup>
   )

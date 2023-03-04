@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { convertPrice } from '../../js/commonFn'
 import { useCart } from '../../hooks/cartHook'
-import Img from '../../assets/images/sign-in-background.jpg'
+import Img from '../../assets/images/dang_nhap/background.jpg'
 import { useAccount } from '../../hooks/accountHook'
 import { useDispatch } from 'react-redux'
 import { openToastMsg } from '../../slices/toastMsgSlice'
@@ -28,7 +28,7 @@ const ProductCard = ({ name, image, price, _id, colors }) => {
       )
       return
     }
-    addProduct(_id, colors[0])
+    addProduct(_id)
     dispatch(
       openToastMsg({
         msg: 'Thêm thành công sản phẩm vào giỏ hàng',

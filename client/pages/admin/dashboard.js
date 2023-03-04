@@ -118,7 +118,7 @@ const Dashboard = () => {
   })
   const [totalCars, setTotalCars] = useState(0)
   const [totalUsers, setTotalUsers] = useState(0)
-  const [totalManufacturers, setTotalManufacturers] = useState(0)
+  const [totalReviews, setTotalReviews] = useState(0)
   const [totalRevenue, setTotalRevenue] = useState({
     money: 0,
     mark: 'VNĐ',
@@ -218,19 +218,19 @@ const Dashboard = () => {
       const [
         totalProductsRes,
         totalUsersRes,
-        totalManufacturersRes,
+        totalReviewRes,
         totalRevenueRes,
         totalRevenueChartRes,
       ] = await Promise.all([
-        baseApi.get('/cars/total'),
+        baseApi.get('/products/total'),
         baseApi.get('/users/total'),
-        baseApi.get('/manufacturers/total'),
+        baseApi.get('/reviews/total'),
         baseApi.get('/orders/getTotalRevenue'),
         baseApi.get('/orders/getTotalRevenue?month=true'),
       ])
       setTotalCars(totalProductsRes.data.data)
       setTotalUsers(totalUsersRes.data.data)
-      setTotalManufacturers(totalManufacturersRes.data.data)
+      setTotalReviews(totalReviewRes.data.data)
       let totalRevenue =
         totalRevenueRes.data.data.length > 0 ? totalRevenueRes.data.data[0].totalRevenue : 0
       let mark = 'VNĐ'
@@ -291,7 +291,7 @@ const Dashboard = () => {
             <div className="font-medium mb-2">Số lượng sản phẩm</div>
             <div className="flex items-center">
               <div className="text-xl flex items-center px-3 h-10 mr-2 bg-green-300 text-green-600 rounded-md">
-                <i className="fa-solid fa-car"></i>
+                <i className="fa-solid fa-bag-shopping"></i>
               </div>
               <div className="text-4xl font-medium">
                 {numberWithCommas(totalCars)}{' '}
@@ -312,14 +312,14 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="rounded-md border border-red-600 bg-red-100 py-6 px-6">
-            <div className="font-medium mb-2">Số lượng hãng</div>
+            <div className="font-medium mb-2">Số lượng đánh giá</div>
             <div className="flex items-center">
               <div className="text-xl flex items-center px-3 h-10 mr-2 bg-red-300 text-red-600 rounded-md">
                 <i className="fa-solid fa-building"></i>
               </div>
               <div className="text-4xl font-medium">
-                {numberWithCommas(totalManufacturers)}{' '}
-                <span className="text-base font-normal leading-none">Hãng</span>
+                {numberWithCommas(totalReviews)}{' '}
+                <span className="text-base font-normal leading-none">Đánh giá</span>
               </div>
             </div>
           </div>

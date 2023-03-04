@@ -40,6 +40,7 @@ export const useAccount = () => {
         router.push('/home')
       }
     } catch (error) {
+      console.log(error)
       if (error.response.status === 401) {
         setErrors(error.response.data.errors)
       } else {
@@ -85,29 +86,24 @@ export const useAccount = () => {
     let totalProducts = 0
     const formattedProducts = []
     const fetchProducts = products.map((product) => {
-      const productNumber = formattedProductNumbers.find(
-        (p) => p._id === product.car._id && p.color === product.color.color
-      )
+      const productNumber = formattedProductNumbers.find((p) => p._id === product._id)
       if (productNumber) {
         totalProducts += productNumber.number
         formattedProducts.push({
-          _id: product.car._id,
+          _id: product._id,
           number: productNumber.number,
-          color: product.color.color,
         })
       } else {
         totalProducts += 1
-        formattedProducts.push({ _id: product.car._id, number: 1, color: product.color.color })
+        formattedProducts.push({ _id: product._id, number: 1 })
       }
       return {
-        ...product.car,
+        ...product,
         number: productNumber?.number || 1,
-        color: product.color,
       }
     })
 
     localStorage.setItem('cart', JSON.stringify(formattedProducts))
-    // dispatch(setTotalNumber(totalProducts))
     dispatch(setProducts(fetchProducts))
   }
 

@@ -1,29 +1,11 @@
 import React from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
+import resource from '../resource'
 
-import Img from '../assets/images/sign-in-background.jpg'
+import Img from '../assets/images/gioi_thieu/gioi_thieu.jpg'
 
-const ITEMS = [
-  {
-    title: 'Tầm nhìn',
-    content: ['Trờ thành nhà cung cấp lớn nhất thế giới'],
-  },
-  {
-    title: 'Sứ mệnh',
-    content: ['Vì một tương lai tốt hơn cho mọi người'],
-  },
-  {
-    title: 'Triết lý thương hiệu',
-    content: [
-      'Đặt khách hàng làm trọng tâm, chúng tôi không ngừng sáng tạo để cung cấp các sản phẩm đẳng cấp và trải nghiệm xuất sắc cho người dùng',
-    ],
-  },
-  {
-    title: 'Giá trị cốt lõi',
-    content: ['Sản phẩm đẳng cấp', 'Giá tốt', 'Bảo hành vượt trội'],
-  },
-]
+const ITEMS = resource.gioi_thieu.tieu_chi_phat_trien
 
 const IntroPage = () => {
   return (
@@ -34,7 +16,7 @@ const IntroPage = () => {
       </Head>
       <main className="container mx-auto px-6 ms:px-0">
         <h1 className="mt-10 mb-8 text-justify text-xl font-medium lg:text-3xl lg:text-center">
-          Công ty CP Việt Hưng
+          {resource.gioi_thieu.ten_cong_ty}
         </h1>
         <div className="relative w-full h-[300px] mb-8 lg:h-[500px] rounded-md overflow-hidden">
           <Image className="object-right object-cover" src={Img} layout="fill" />

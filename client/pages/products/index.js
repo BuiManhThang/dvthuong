@@ -27,14 +27,6 @@ const SORT_OPTIONS = [
     name: 'Tên sản phẩm giảm dần',
   },
   {
-    _id: 'manufacturer|1',
-    name: 'Tên nhà sản xuất tăng dần',
-  },
-  {
-    _id: 'manufacturer|-1',
-    name: 'Tên nhà sản xuất giảm dần',
-  },
-  {
     _id: 'price|1',
     name: 'Giá tăng dần',
   },
@@ -48,9 +40,7 @@ const Products = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [products, setProducts] = useState([])
   const [totalRecords, setTotalRecords] = useState(0)
-  const [manufacturers, setManufacturers] = useState([])
   const [selectedSortOption, setSelectedSortOption] = useState('price|-1')
-  const [selectedManufacturer, setSelectedManufacturer] = useState('')
   const [pageIndex, setPageIndex] = useState(1)
   const [pageSize, setPageSize] = useState('16')
   const [searchText, setSearchText] = useState('')
@@ -72,12 +62,6 @@ const Products = () => {
         getPaging(generateQuery({ SearchText: e.target.value }))
       }, 500)
     )
-  }
-
-  const handleChangeManufacturer = (e) => {
-    getPaging(generateQuery({ Manufacturer: e, PageIndex: 1 }))
-    setPageIndex(1)
-    setSelectedManufacturer(e)
   }
 
   const handleChangeSort = (e) => {
@@ -102,21 +86,9 @@ const Products = () => {
     const apiQuery = {
       PageIndex: 1,
     }
-    if (query.m) {
-      setSelectedManufacturer(query.m)
-      apiQuery.Manufacturer = query.m
-    }
 
     try {
       getPaging(generateQuery(apiQuery))
-      const res = await baseApi.get('manufacturers')
-      setManufacturers([
-        {
-          _id: '',
-          name: 'Tất cả',
-        },
-        ...res.data.data,
-      ])
     } catch (error) {
       console.log(error)
     }
@@ -137,7 +109,7 @@ const Products = () => {
       setIsLoading(true)
     }
     try {
-      const res = await baseApi.get(`/cars/query?${query}`)
+      const res = await baseApi.get(`/products/query?${query}`)
       if (isLoadMore === true) {
         setProducts([...products, ...res.data.data.pageData])
       } else {
@@ -156,18 +128,12 @@ const Products = () => {
     }
   }
 
-  const generateQuery = ({
-    SearchText = null,
-    PageSize = null,
-    PageIndex = null,
-    Sort = null,
-    Manufacturer = null,
-  }) => {
+  const generateQuery = ({ SearchText = null, PageSize = null, PageIndex = null, Sort = null }) => {
     const query = `pageSize=${PageSize || pageSize}&pageIndex=${
       PageIndex || pageIndex
-    }&manufacturer=${Manufacturer !== null ? Manufacturer : selectedManufacturer}&searchText=${
-      SearchText !== null ? SearchText : searchText
-    }&sort=${Sort || selectedSortOption}`
+    }&searchText=${SearchText !== null ? SearchText : searchText}&sort=${
+      Sort || selectedSortOption
+    }`
     return query
   }
 
@@ -198,17 +164,6 @@ const Products = () => {
                 />
               </div>
               <div className="flex items-center gap-x-3">
-                <div className="w-72">
-                  <Combobox
-                    id="manufacturer"
-                    name="manufacturer"
-                    items={manufacturers}
-                    value={selectedManufacturer}
-                    label="Nhà cung cấp"
-                    labelPosition={ComboboxLabelPositionEnum.Left}
-                    onChange={handleChangeManufacturer}
-                  />
-                </div>
                 <div className="w-72">
                   <Combobox
                     id="sort-option"
